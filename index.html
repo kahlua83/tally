@@ -6,183 +6,127 @@
     <title>VEDC Caster Signal System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .transition-bg { transition: background-color 0.3s ease, color 0.3s ease; }
+        .transition-bg { transition: background-color 0.25s ease, color 0.25s ease; }
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .animate-pulse-fast { animation: pulse-fast 0.8s infinite; }
     </style>
 </head>
-<body class="bg-slate-900 text-white h-screen flex flex-col justify-between overflow-hidden">
+<body class="bg-slate-950 text-white h-screen flex flex-col justify-between overflow-hidden font-sans">
 
-    <!-- KHU VỰC HIỂN THỊ CHO CASTER (TABLET) -->
-    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-900">
-        <div id="status-badge" class="text-5xl md:text-7xl font-black uppercase tracking-wider mb-8 px-8 py-4 rounded-2xl bg-black/30 shadow-2xl">
+    <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET) ==================== -->
+    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950">
+        <!-- Đèn Tally Trạng Thái Chính -->
+        <div id="status-badge" class="text-5xl md:text-8xl font-black uppercase tracking-wider mb-6 px-10 py-6 rounded-3xl bg-black/40 shadow-2xl border-4 border-white/20">
+            CONNECTING...
+        </div>
+        <div id="status-subtext" class="text-2xl md:text-4xl font-bold tracking-wide uppercase opacity-90 mb-8">
             Đang kết nối...
         </div>
-        <div id="custom-msg" class="text-2xl md:text-4xl font-medium max-w-4xl text-slate-200 bg-black/40 px-6 py-4 rounded-xl hidden"></div>
-    </div>
 
-    <!-- KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) -->
-    <div id="director-view" class="hidden flex-1 p-6 overflow-y-auto max-w-5xl mx-auto w-full">
-        <h1 class="text-3xl font-bold mb-6 text-indigo-400 flex items-center gap-3">
-            <span>🎛️ Bảng Điều Khiển Caster Tally</span>
-        </h1>
-
-        <!-- Chọn Caster cần điều khiển -->
-        <div class="mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <label class="block text-sm font-semibold mb-2 text-slate-300">Chọn Bàn / Caster:</label>
-            <div class="flex gap-3">
-                <button id="btn-caster_1" class="px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow">Bàn 1 (Main)</button>
-                <button id="btn-caster_2" class="px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300">Bàn 2 (Analyst)</button>
-            </div>
-        </div>
-
-        <!-- Các nút bấm trạng thái Tally -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <button id="btn-on-air" class="p-6 rounded-2xl bg-red-600 hover:bg-red-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
-                <span class="text-3xl">🔴</span> ON AIR
-            </button>
-            <button id="btn-caster-out" class="p-6 rounded-2xl bg-blue-600 hover:bg-blue-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
-                <span class="text-3xl">🔵</span> CASTER OUT
-            </button>
-            <button id="btn-cau-gio" class="p-6 rounded-2xl bg-amber-500 hover:bg-amber-400 font-bold text-xl text-slate-900 shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
-                <span class="text-3xl">🟡</span> CÂU GIỜ
-            </button>
-            <button id="btn-break" class="p-6 rounded-2xl bg-purple-600 hover:bg-purple-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
-                <span class="text-3xl">🟣</span> BREAK
-            </button>
-        </div>
-
-        <!-- Gửi tin nhắn nhanh -->
-        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-            <label class="block text-sm font-semibold mb-2 text-slate-300">Gửi Tin Nhắn Nhanh / Lời Nhắc:</label>
-            <div class="flex gap-3">
-                <input type="text" id="quick-msg-input" placeholder="Ví dụ: Nói nhỏ lại chút, Nhìn thẳng camera..." class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
-                <button id="btn-send-msg" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-lg font-bold transition">Gửi</button>
-                <button id="btn-clear-msg" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-lg font-bold text-slate-300 transition">Xóa</button>
-            </div>
-        </div>
-
-        <!-- Trạng thái hiện tại -->
-        <div class="mt-6 text-sm text-slate-400 bg-slate-800/50 p-4 rounded-xl">
-            Đang điều khiển: <span id="current-target-label" class="font-bold text-white">caster_1</span> | Trạng thái hiện tại: <span id="current-status-label" class="font-bold text-white">--</span>
+        <!-- Chú ý lời nhắc từ Đạo diễn -->
+        <div id="custom-msg" class="text-3xl md:text-5xl font-extrabold max-w-5xl text-amber-300 bg-black/70 border-4 border-amber-400 px-8 py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast">
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <!-- ==================== KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) ==================== -->
+    <div id="director-view" class="hidden flex-1 p-6 overflow-y-auto max-w-7xl mx-auto w-full">
+        <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
+            <h1 class="text-3xl font-black text-indigo-400 flex items-center gap-3">
+                <span>🎛️ BẢNG ĐIỀU KHIỂN TALLY CASTER (VEDC)</span>
+            </h1>
+            <span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                ⚡ Realtime Dual-Panel Mode
+            </span>
+        </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJZo-qh1VsbaixImBQOWTc5g1KLY4ugvc",
-            authDomain: "vedc-tally-signal-1470d.firebaseapp.com",
-            databaseURL: "https://vedc-tally-signal-1470d-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "vedc-tally-signal-1470d",
-            storageBucket: "vedc-tally-signal-1470d.firebasestorage.app",
-            messagingSenderId: "208327260119",
-            appId: "1:208327260119:web:dc063b12622626472efd92",
-            measurementId: "G-KXC2301E50"
-        };
+        <!-- Chia 2 cột riêng biệt cho Bàn 1 & Bàn 2 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+            <!-- ================= BÀN 1 (MAIN CASTER) ================= -->
+            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+                            <span>🎙️ BÀN 1</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">MAIN</span>
+                        </h2>
+                        <!-- Màn hình trạng thái thu nhỏ -->
+                        <div id="monitor-c1" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                            STANDBY
+                        </div>
+                    </div>
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const role = urlParams.get('role') || 'director';
-        let currentCasterId = urlParams.get('id') || 'caster_1';
+                    <!-- Lưới các nút bấm Bàn 1 -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button id="btn-c1-onair" class="p-4 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔴 ON AIR</span>
+                            <span class="text-xs font-normal opacity-80">LÊN SÓNG</span>
+                        </button>
 
-        if (role === 'director') {
-            document.getElementById('director-view').classList.remove('hidden');
-            initDirector();
-        } else {
-            document.getElementById('caster-view').classList.remove('hidden');
-            initCaster(currentCasterId);
-        }
+                        <button id="btn-c1-standby" class="p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        </button>
 
-        function initDirector() {
-            selectCaster(currentCasterId);
+                        <button id="btn-c1-caugio" class="p-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟡 CÂU GIỜ</span>
+                            <span class="text-xs font-normal opacity-80">HOLD TIME</span>
+                        </button>
 
-            document.getElementById('btn-caster_1').onclick = () => selectCaster('caster_1');
-            document.getElementById('btn-caster_2').onclick = () => selectCaster('caster_2');
+                        <button id="btn-c1-out" class="p-4 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔵 CASTER OUT</span>
+                            <span class="text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                        </button>
 
-            document.getElementById('btn-on-air').onclick = () => updateStatus('ON_AIR', 'ON AIR', 'bg-red-600', 'text-white');
-            document.getElementById('btn-caster-out').onclick = () => updateStatus('CASTER_OUT', 'CASTER OUT', 'bg-blue-600', 'text-white');
-            document.getElementById('btn-cau-gio').onclick = () => updateStatus('CAU_GIO', 'CÂU GIỜ', 'bg-amber-500', 'text-slate-900');
-            document.getElementById('btn-break').onclick = () => updateStatus('BREAK', 'BREAK / NGHỈ', 'bg-purple-600', 'text-white');
+                        <button id="btn-c1-break" class="p-4 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
+                            <span>🟣 BREAK</span>
+                            <span class="text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                        </button>
+                    </div>
+                </div>
 
-            document.getElementById('btn-send-msg').onclick = sendQuickMessage;
-            document.getElementById('btn-clear-msg').onclick = clearMessage;
-        }
+                <!-- Lời nhắc nhanh Bàn 1 -->
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                    <label class="block text-xs font-bold uppercase mb-2 text-amber-400">⚠️ Chú ý lời nhắc (Bàn 1):</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-c1-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <button id="btn-c1-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition">GỬI</button>
+                        <button id="btn-c1-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition">XÓA</button>
+                    </div>
+                </div>
+            </div>
 
-        function selectCaster(casterId) {
-            currentCasterId = casterId;
-            document.getElementById('current-target-label').innerText = casterId;
+            <!-- ================= BÀN 2 (ANALYST / DESK) ================= -->
+            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+                            <span>🎧 BÀN 2</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">ANALYST</span>
+                        </h2>
+                        <!-- Màn hình trạng thái thu nhỏ -->
+                        <div id="monitor-c2" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                            STANDBY
+                        </div>
+                    </div>
 
-            document.getElementById('btn-caster_1').className = casterId === 'caster_1' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
-            document.getElementById('btn-caster_2').className = casterId === 'caster_2' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
+                    <!-- Lưới các nút bấm Bàn 2 -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button id="btn-c2-onair" class="p-4 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔴 ON AIR</span>
+                            <span class="text-xs font-normal opacity-80">LÊN SÓNG</span>
+                        </button>
 
-            onValue(ref(db, 'signals/' + casterId), (snapshot) => {
-                const data = snapshot.val();
-                document.getElementById('current-status-label').innerText = data ? (data.text || 'SẴN SÀNG') : 'SẴN SÀNG';
-            });
-        }
+                        <button id="btn-c2-standby" class="p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        </button>
 
-        function updateStatus(statusKey, statusText, bgColor, textColor) {
-            set(ref(db, 'signals/' + currentCasterId), {
-                key: statusKey,
-                text: statusText,
-                bgClass: bgColor,
-                textClass: textColor,
-                message: ''
-            }).catch(err => alert("Lỗi gửi tín hiệu: " + err.message));
-        }
+                        <button id="btn-c2-caugio" class="p-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟡 CÂU GIỜ</span>
+                            <span class="text-xs font-normal opacity-80">HOLD TIME</span>
+                        </button>
 
-        function sendQuickMessage() {
-            const input = document.getElementById('quick-msg-input');
-            const msg = input.value.trim();
-            if(!msg) return;
-
-            const statusRef = ref(db, 'signals/' + currentCasterId);
-            onValue(statusRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                set(statusRef, { ...data, message: msg });
-            }, { onlyOnce: true });
-            input.value = '';
-        }
-
-        function clearMessage() {
-            const statusRef = ref(db, 'signals/' + currentCasterId);
-            onValue(statusRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                set(statusRef, { ...data, message: '' });
-            }, { onlyOnce: true });
-        }
-
-        function initCaster(casterId) {
-            const bodyBg = document.getElementById('caster-view');
-            const statusBadge = document.getElementById('status-badge');
-            const customMsg = document.getElementById('custom-msg');
-
-            onValue(ref(db, 'signals/' + casterId), (snapshot) => {
-                const data = snapshot.val();
-                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
-
-                if (data) {
-                    bodyBg.classList.add(data.bgClass || 'bg-slate-900');
-                    bodyBg.classList.add(data.textClass || 'text-white');
-                    statusBadge.innerText = data.text || 'STANDBY';
-
-                    if (data.message && data.message.trim() !== '') {
-                        customMsg.innerText = `💬 "${data.message}"`;
-                        customMsg.classList.remove('hidden');
-                    } else {
-                        customMsg.classList.add('hidden');
-                    }
-                } else {
-                    bodyBg.classList.add('bg-slate-900', 'text-white');
-                    statusBadge.innerText = 'STANDBY (Sẵn sàng)';
-                    customMsg.classList.add('hidden');
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+                        <button id="btn-c2-out" class="p-4 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔵 CASTER OUT</span>
