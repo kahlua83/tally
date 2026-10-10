@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VEDC Caster Signal System</title>
-    <!-- Tailwind CSS qua CDN để làm giao diện nhanh, đẹp -->
+    <!-- Tailwind CSS qua CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .transition-bg { transition: background-color 0.3s ease, color 0.3s ease; }
@@ -88,7 +88,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Xác định Role dựa vào URL Parameters (Ví dụ: index.html?role=director hoặc index.html?role=caster&id=caster_1)
         const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role') || 'director';
         let currentCasterId = urlParams.get('id') || 'caster_1';
@@ -101,7 +100,6 @@
             setupCaster(currentCasterId);
         }
 
-        // --- LOGIC PHÍA ĐẠO DIỄN ---
         function setupDirector() {
             selectCaster(currentCasterId);
         }
@@ -110,11 +108,9 @@
             currentCasterId = casterId;
             document.getElementById('current-target-label').innerText = casterId;
             
-            // Đổi màu style nút chọn
             document.getElementById('btn-caster_1').className = casterId === 'caster_1' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
             document.getElementById('btn-caster_2').className = casterId === 'caster_2' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
 
-            // Lắng nghe dữ liệu realtime của caster đang chọn để hiển thị status
             onValue(ref(db, 'signals/' + casterId), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -131,14 +127,13 @@
                 text: statusText,
                 bgClass: bgColor,
                 textClass: textColor,
-                message: '' // Giữ hoặc reset message tùy ý
+                message: '' 
             });
         }
 
         window.sendQuickMessage = function() {
             const msg = document.getElementById('quick-msg-input').value;
             if(!msg) return;
-            // Cập nhật riêng message mà không làm mất trạng thái cũ
             const statusRef = ref(db, 'signals/' + currentCasterId);
             onValue(statusRef, (snapshot) => {
                 const data = snapshot.val() || {};
@@ -155,7 +150,6 @@
             }, { onlyOnce: true });
         }
 
-        // --- LOGIC PHÍA CASTER (TABLET) ---
         function setupCaster(casterId) {
             const bodyBg = document.getElementById('caster-view');
             const statusBadge = document.getElementById('status-badge');
@@ -163,8 +157,6 @@
 
             onValue(ref(db, 'signals/' + casterId), (snapshot) => {
                 const data = snapshot.val();
-                
-                // Reset class màu nền cũ
                 bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
                 
                 if (data) {
@@ -172,7 +164,6 @@
                     bodyBg.classList.add(data.textClass || 'text-white');
                     statusBadge.innerText = data.text || 'STANDBY';
 
-                    // Xử lý tin nhắn nhanh
                     if (data.message && data.message.trim() !== '') {
                         customMsg.innerText = `💬 "${data.message}"`;
                         customMsg.classList.remove('hidden');
