@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VEDC Caster Signal System</title>
-    <!-- Tailwind CSS qua CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .transition-bg { transition: background-color 0.3s ease, color 0.3s ease; }
@@ -17,9 +16,7 @@
         <div id="status-badge" class="text-5xl md:text-7xl font-black uppercase tracking-wider mb-8 px-8 py-4 rounded-2xl bg-black/30 shadow-2xl">
             Đang kết nối...
         </div>
-        <div id="custom-msg" class="text-2xl md:text-4xl font-medium max-w-4xl text-slate-200 bg-black/40 px-6 py-4 rounded-xl hidden">
-            <!-- Tin nhắn nhanh từ đạo diễn -->
-        </div>
+        <div id="custom-msg" class="text-2xl md:text-4xl font-medium max-w-4xl text-slate-200 bg-black/40 px-6 py-4 rounded-xl hidden"></div>
     </div>
 
     <!-- KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) -->
@@ -32,23 +29,23 @@
         <div class="mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
             <label class="block text-sm font-semibold mb-2 text-slate-300">Chọn Bàn / Caster:</label>
             <div class="flex gap-3">
-                <button onclick="selectCaster('caster_1')" id="btn-caster_1" class="px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow">Bàn 1 (Main)</button>
-                <button onclick="selectCaster('caster_2')" id="btn-caster_2" class="px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300">Bàn 2 (Analyst)</button>
+                <button id="btn-caster_1" class="px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow">Bàn 1 (Main)</button>
+                <button id="btn-caster_2" class="px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300">Bàn 2 (Analyst)</button>
             </div>
         </div>
 
         <!-- Các nút bấm trạng thái Tally -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <button onclick="updateStatus('ON_AIR', 'ON AIR', 'bg-red-600', 'text-white')" class="p-6 rounded-2xl bg-red-600 hover:bg-red-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
+            <button id="btn-on-air" class="p-6 rounded-2xl bg-red-600 hover:bg-red-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
                 <span class="text-3xl">🔴</span> ON AIR
             </button>
-            <button onclick="updateStatus('CASTER_OUT', 'CASTER OUT', 'bg-blue-600', 'text-white')" class="p-6 rounded-2xl bg-blue-600 hover:bg-blue-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
+            <button id="btn-caster-out" class="p-6 rounded-2xl bg-blue-600 hover:bg-blue-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
                 <span class="text-3xl">🔵</span> CASTER OUT
             </button>
-            <button onclick="updateStatus('CAU_GIO', 'CÂU GIỜ', 'bg-amber-500', 'text-slate-900')" class="p-6 rounded-2xl bg-amber-500 hover:bg-amber-400 font-bold text-xl text-slate-900 shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
+            <button id="btn-cau-gio" class="p-6 rounded-2xl bg-amber-500 hover:bg-amber-400 font-bold text-xl text-slate-900 shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
                 <span class="text-3xl">🟡</span> CÂU GIỜ
             </button>
-            <button onclick="updateStatus('BREAK', 'BREAK / NGHỈ', 'bg-purple-600', 'text-white')" class="p-6 rounded-2xl bg-purple-600 hover:bg-purple-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
+            <button id="btn-break" class="p-6 rounded-2xl bg-purple-600 hover:bg-purple-500 font-bold text-xl shadow-lg transition transform active:scale-95 flex flex-col items-center justify-center gap-2">
                 <span class="text-3xl">🟣</span> BREAK
             </button>
         </div>
@@ -58,8 +55,8 @@
             <label class="block text-sm font-semibold mb-2 text-slate-300">Gửi Tin Nhắn Nhanh / Lời Nhắc:</label>
             <div class="flex gap-3">
                 <input type="text" id="quick-msg-input" placeholder="Ví dụ: Nói nhỏ lại chút, Nhìn thẳng camera..." class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
-                <button onclick="sendQuickMessage()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-lg font-bold transition">Gửi</button>
-                <button onclick="clearMessage()" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-lg font-bold text-slate-300 transition">Xóa</button>
+                <button id="btn-send-msg" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-lg font-bold transition">Gửi</button>
+                <button id="btn-clear-msg" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-lg font-bold text-slate-300 transition">Xóa</button>
             </div>
         </div>
 
@@ -69,12 +66,11 @@
         </div>
     </div>
 
-    <!-- SCRIPT TÍCH HỢP FIREBASE REALTIME DATABASE -->
+    <!-- SCRIPT FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Thống tin Firebase Realtime Database của ca ca
         const firebaseConfig = {
             apiKey: "AIzaSyDJZo-qh1VsbaixImBQOWTc5g1KLY4ugvc",
             authDomain: "vedc-tally-signal-1470d.firebaseapp.com",
@@ -95,55 +91,64 @@
 
         if (role === 'director') {
             document.getElementById('director-view').classList.remove('hidden');
-            setupDirector();
+            initDirector();
         } else {
             document.getElementById('caster-view').classList.remove('hidden');
-            setupCaster(currentCasterId);
+            initCaster(currentCasterId);
         }
 
-        function setupDirector() {
+        function initDirector() {
             selectCaster(currentCasterId);
+
+            document.getElementById('btn-caster_1').onclick = () => selectCaster('caster_1');
+            document.getElementById('btn-caster_2').onclick = () => selectCaster('caster_2');
+
+            document.getElementById('btn-on-air').onclick = () => updateStatus('ON_AIR', 'ON AIR', 'bg-red-600', 'text-white');
+            document.getElementById('btn-caster-out').onclick = () => updateStatus('CASTER_OUT', 'CASTER OUT', 'bg-blue-600', 'text-white');
+            document.getElementById('btn-cau-gio').onclick = () => updateStatus('CAU_GIO', 'CÂU GIỜ', 'bg-amber-500', 'text-slate-900');
+            document.getElementById('btn-break').onclick = () => updateStatus('BREAK', 'BREAK / NGHỈ', 'bg-purple-600', 'text-white');
+
+            document.getElementById('btn-send-msg').onclick = sendQuickMessage;
+            document.getElementById('btn-clear-msg').onclick = clearMessage;
         }
 
-        window.selectCaster = function(casterId) {
+        function selectCaster(casterId) {
             currentCasterId = casterId;
             document.getElementById('current-target-label').innerText = casterId;
-            
+
             document.getElementById('btn-caster_1').className = casterId === 'caster_1' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
             document.getElementById('btn-caster_2').className = casterId === 'caster_2' ? 'px-5 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow' : 'px-5 py-2.5 rounded-lg font-bold bg-slate-700 text-slate-300';
 
             onValue(ref(db, 'signals/' + casterId), (snapshot) => {
                 const data = snapshot.val();
-                if (data) {
-                    document.getElementById('current-status-label').innerText = data.text || 'SẴN SÀNG';
-                } else {
-                    document.getElementById('current-status-label').innerText = 'SẴN SÀNG';
-                }
+                document.getElementById('current-status-label').innerText = data ? (data.text || 'SẴN SÀNG') : 'SẴN SÀNG';
             });
         }
 
-        window.updateStatus = function(statusKey, statusText, bgColor, textColor) {
+        function updateStatus(statusKey, statusText, bgColor, textColor) {
             set(ref(db, 'signals/' + currentCasterId), {
                 key: statusKey,
                 text: statusText,
                 bgClass: bgColor,
                 textClass: textColor,
-                message: '' 
-            });
+                message: ''
+            }).catch(err => alert("Lỗi gửi tín hiệu: " + err.message));
         }
 
-        window.sendQuickMessage = function() {
-            const msg = document.getElementById('quick-msg-input').value;
+        function sendQuickMessage() {
+            const input = document.getElementById('quick-msg-input');
+            const msg = input.value.trim();
             if(!msg) return;
+
             const statusRef = ref(db, 'signals/' + currentCasterId);
             onValue(statusRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 set(statusRef, { ...data, message: msg });
             }, { onlyOnce: true });
-            document.getElementById('quick-msg-input').value = '';
+            input.value = '';
         }
 
-        window.clearMessage = function() {
+        function clearMessage() {
             const statusRef = ref(db, 'signals/' + currentCasterId);
             onValue(statusRef, (snapshot) => {
                 const data = snapshot.val() || {};
@@ -151,7 +156,7 @@
             }, { onlyOnce: true });
         }
 
-        function setupCaster(casterId) {
+        function initCaster(casterId) {
             const bodyBg = document.getElementById('caster-view');
             const statusBadge = document.getElementById('status-badge');
             const customMsg = document.getElementById('custom-msg');
@@ -159,7 +164,7 @@
             onValue(ref(db, 'signals/' + casterId), (snapshot) => {
                 const data = snapshot.val();
                 bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
-                
+
                 if (data) {
                     bodyBg.classList.add(data.bgClass || 'bg-slate-900');
                     bodyBg.classList.add(data.textClass || 'text-white');
