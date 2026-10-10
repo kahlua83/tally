@@ -130,3 +130,159 @@
 
                         <button id="btn-c2-out" class="p-4 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🔵 CASTER OUT</span>
+                            <span class="text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                        </button>
+
+                        <button id="btn-c2-break" class="p-4 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-lg shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
+                            <span>🟣 BREAK</span>
+                            <span class="text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lời nhắc nhanh Bàn 2 -->
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                    <label class="block text-xs font-bold uppercase mb-2 text-amber-400">⚠️ Chú ý lời nhắc (Bàn 2):</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-c2-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <button id="btn-c2-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition">GỬI</button>
+                        <button id="btn-c2-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition">XÓA</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT TÍCH HỢP FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJZo-qh1VsbaixImBQOWTc5g1KLY4ugvc",
+            authDomain: "vedc-tally-signal-1470d.firebaseapp.com",
+            databaseURL: "https://vedc-tally-signal-1470d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "vedc-tally-signal-1470d",
+            storageBucket: "vedc-tally-signal-1470d.firebasestorage.app",
+            messagingSenderId: "208327260119",
+            appId: "1:208327260119:web:dc063b12622626472efd92",
+            measurementId: "G-KXC2301E50"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role') || 'director';
+        const casterId = urlParams.get('id') || 'caster_1';
+
+        if (role === 'director') {
+            document.getElementById('director-view').classList.remove('hidden');
+            initDirectorPanel();
+        } else {
+            document.getElementById('caster-view').classList.remove('hidden');
+            initCasterTablet(casterId);
+        }
+
+        // --- ĐẠO DIỄN: Gán sự kiện trực tiếp cho Bàn 1 & Bàn 2 ---
+        function initDirectorPanel() {
+            // Sự kiện Bàn 1
+            document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white');
+            document.getElementById('btn-c1-standby').onclick = () => sendSignal('caster_1', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white');
+            document.getElementById('btn-c1-caugio').onclick = () => sendSignal('caster_1', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950');
+            document.getElementById('btn-c1-out').onclick = () => sendSignal('caster_1', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white');
+            document.getElementById('btn-c1-break').onclick = () => sendSignal('caster_1', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white');
+            document.getElementById('btn-c1-sendmsg').onclick = () => sendQuickMsg('caster_1', 'input-c1-msg');
+            document.getElementById('btn-c1-clearmsg').onclick = () => clearQuickMsg('caster_1');
+
+            // Sự kiện Bàn 2
+            document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white');
+            document.getElementById('btn-c2-standby').onclick = () => sendSignal('caster_2', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white');
+            document.getElementById('btn-c2-caugio').onclick = () => sendSignal('caster_2', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950');
+            document.getElementById('btn-c2-out').onclick = () => sendSignal('caster_2', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white');
+            document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white');
+            document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
+            document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
+
+            // Lắng nghe trạng thái để cập nhật Đèn Monitor nhỏ trên bàn đạo diễn
+            listenMonitor('caster_1', 'monitor-c1');
+            listenMonitor('caster_2', 'monitor-c2');
+        }
+
+        function sendSignal(targetId, titleEng, titleVie, bgClass, textClass) {
+            set(ref(db, 'signals/' + targetId), {
+                titleEng: titleEng,
+                titleVie: titleVie,
+                bgClass: bgClass,
+                textClass: textClass,
+                message: ''
+            }).catch(err => alert("Lỗi: " + err.message));
+        }
+
+        function sendQuickMsg(targetId, inputId) {
+            const input = document.getElementById(inputId);
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const targetRef = ref(db, 'signals/' + targetId);
+            onValue(targetRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                set(targetRef, { ...data, message: msg });
+            }, { onlyOnce: true });
+            input.value = '';
+        }
+
+        function clearQuickMsg(targetId) {
+            const targetRef = ref(db, 'signals/' + targetId);
+            onValue(targetRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                set(targetRef, { ...data, message: '' });
+            }, { onlyOnce: true });
+        }
+
+        function listenMonitor(targetId, elementId) {
+            const monitorEl = document.getElementById(elementId);
+            onValue(ref(db, 'signals/' + targetId), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
+                    monitorEl.className = `px-4 py-2 rounded-xl text-xs font-black uppercase shadow ${data.bgClass} ${data.textClass}`;
+                }
+            });
+        }
+
+        // --- CASTER TABLET: Hiển thị tín hiệu siêu to ---
+        function initCasterTablet(targetId) {
+            const bodyBg = document.getElementById('caster-view');
+            const statusBadge = document.getElementById('status-badge');
+            const statusSubtext = document.getElementById('status-subtext');
+            const customMsg = document.getElementById('custom-msg');
+
+            onValue(ref(db, 'signals/' + targetId), (snapshot) => {
+                const data = snapshot.val();
+                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
+
+                if (data) {
+                    bodyBg.classList.add(data.bgClass || 'bg-slate-950');
+                    bodyBg.classList.add(data.textClass || 'text-white');
+                    statusBadge.innerText = data.titleEng || 'STANDBY';
+                    statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
+
+                    if (data.message && data.message.trim() !== '') {
+                        customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
+                        customMsg.classList.remove('hidden');
+                    } else {
+                        customMsg.classList.add('hidden');
+                    }
+                } else {
+                    bodyBg.classList.add('bg-slate-950', 'text-white');
+                    statusBadge.innerText = 'PREVIEW';
+                    statusSubtext.innerText = 'STANDBY / CHUẨN BỊ';
+                    customMsg.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
