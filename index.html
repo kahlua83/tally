@@ -15,19 +15,19 @@
         .animate-pulse-fast { animation: pulse-fast 0.8s infinite; }
 
         .responsive-title {
-            font-size: clamp(2rem, 7vw, 6rem);
+            font-size: clamp(2rem, 6vw, 5rem);
             line-height: 1.1;
         }
         .responsive-subtext {
-            font-size: clamp(1.1rem, 3.5vw, 2.5rem);
+            font-size: clamp(1rem, 3vw, 2rem);
             line-height: 1.2;
         }
         .responsive-msg {
-            font-size: clamp(1.2rem, 4vw, 3rem);
+            font-size: clamp(1.1rem, 3.5vw, 2.5rem);
             line-height: 1.3;
         }
         .responsive-countdown {
-            font-size: clamp(1.2rem, 3.8vw, 2.2rem);
+            font-size: clamp(1.1rem, 3.5vw, 2rem);
         }
     </style>
 </head>
@@ -81,28 +81,33 @@
     </div>
 
     <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER ==================== -->
-    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-8 text-center transition-bg bg-slate-950 relative h-full w-full overflow-hidden">
+    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg bg-slate-950 relative h-full w-full overflow-hidden">
         
-        <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/40 hover:bg-black/70 border border-white/20 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold text-slate-300 transition z-10">
+        <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/80 border border-white/20 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-slate-200 transition z-10 shadow">
             🔄 Đổi Bàn / Job
         </button>
 
-        <div id="caster-countdown-banner" class="responsive-countdown font-extrabold text-amber-300 bg-black/70 px-6 sm:px-10 py-2.5 sm:py-3.5 rounded-2xl mb-4 sm:mb-8 tracking-wider uppercase border-2 border-amber-400/60 hidden animate-pulse-fast shadow-2xl max-w-full">
-            ⏱️ ĐẾM NGƯỢC: <span id="caster-timer-num">5</span>s
-        </div>
-
-        <div id="status-badge" class="responsive-title font-black uppercase tracking-wider mb-3 sm:mb-6 px-6 sm:px-12 py-4 sm:py-8 rounded-2xl sm:rounded-3xl bg-black/40 shadow-2xl border-2 sm:border-4 border-white/20 max-w-full break-words">
-            CONNECTING...
-        </div>
-        
-        <div id="status-subtext" class="responsive-subtext font-bold tracking-wide uppercase opacity-90 mb-4 sm:mb-8 max-w-full break-words">
+        <!-- Nhãn định danh bàn đang hiển thị -->
+        <div id="caster-desk-badge" class="bg-black/60 border border-white/20 px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300 mb-3 shadow-lg">
             Đang kết nối...
         </div>
 
-        <div id="custom-msg" class="responsive-msg font-extrabold max-w-5xl w-full text-amber-300 bg-black/80 border-2 sm:border-4 border-amber-400 px-4 sm:px-8 py-4 sm:py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast break-words">
+        <div id="caster-countdown-banner" class="responsive-countdown font-extrabold text-amber-300 bg-black/70 px-6 sm:px-10 py-2 sm:py-3 rounded-2xl mb-3 sm:mb-6 tracking-wider uppercase border-2 border-amber-400/60 hidden animate-pulse-fast shadow-2xl max-w-full">
+            ⏱️ ĐẾM NGƯỢC: <span id="caster-timer-num">5</span>s
         </div>
 
-        <div id="wake-lock-status" class="absolute bottom-2 sm:bottom-4 text-[10px] sm:text-xs font-semibold text-slate-500 opacity-60">
+        <div id="status-badge" class="responsive-title font-black uppercase tracking-wider mb-2 sm:mb-4 px-6 sm:px-10 py-3 sm:py-6 rounded-2xl sm:rounded-3xl bg-black/40 shadow-2xl border-2 sm:border-4 border-white/20 max-w-full break-words">
+            CONNECTING...
+        </div>
+        
+        <div id="status-subtext" class="responsive-subtext font-bold tracking-wide uppercase opacity-90 mb-3 sm:mb-6 max-w-full break-words">
+            Đang kết nối...
+        </div>
+
+        <div id="custom-msg" class="responsive-msg font-extrabold max-w-5xl w-full text-amber-300 bg-black/80 border-2 sm:border-4 border-amber-400 px-4 sm:px-6 py-3 sm:py-5 rounded-2xl shadow-2xl hidden animate-pulse-fast break-words">
+        </div>
+
+        <div id="wake-lock-status" class="absolute bottom-2 sm:bottom-3 text-[10px] sm:text-xs font-semibold text-slate-400 opacity-70">
             💡 Screen Wake Lock: Off
         </div>
     </div>
@@ -251,7 +256,7 @@
     <!-- SCRIPT TÍCH HỢP FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJZo-qh1VsbaixImBQOWTc5g1KLY4ugvc",
@@ -272,7 +277,6 @@
         let casterId = urlParams.get('id');
         let jobId = urlParams.get('job');
 
-        // Chuẩn hóa tên Job thành dạng slug an toàn với Firebase (loại bỏ khoảng trắng, chữ hoa, ký tự đặc biệt)
         function cleanJobId(id) {
             if (!id) return '';
             return id.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
@@ -305,6 +309,7 @@
         };
 
         window.selectCasterDesk = function(selectedDeskId) {
+            urlParams.set('role', 'caster');
             urlParams.set('id', selectedDeskId);
             window.location.search = urlParams.toString();
         };
@@ -312,6 +317,7 @@
         window.resetSelectStep = function() {
             urlParams.delete('job');
             urlParams.delete('id');
+            urlParams.delete('role');
             window.location.search = urlParams.toString();
         };
 
@@ -327,6 +333,16 @@
                 initDirectorPanel();
             } else {
                 document.getElementById('caster-view').classList.remove('hidden');
+                
+                const deskBadge = document.getElementById('caster-desk-badge');
+                if (casterId === 'caster_1') {
+                    deskBadge.innerText = `🎙️ ${jobId.toUpperCase()} - BÀN 1 (MAIN CASTER)`;
+                } else if (casterId === 'caster_2') {
+                    deskBadge.innerText = `🎧 ${jobId.toUpperCase()} - BÀN 2 (ANALYST DESK)`;
+                } else {
+                    deskBadge.innerText = `📡 ${jobId.toUpperCase()} - ${casterId}`;
+                }
+
                 initCasterTablet(casterId);
                 requestWakeLock();
             }
@@ -361,6 +377,7 @@
             listenMonitor('caster_2', 'monitor-c2');
         }
 
+        // Dùng set() hoàn toàn mới với timestamp chuẩn để đồng bộ tuyệt đối giữa PC và điện thoại
         function sendSignal(targetId, titleEng, titleVie, bgClass, textClass, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
             set(getDbRef(targetId), {
@@ -379,20 +396,14 @@
             const msg = input.value.trim();
             if(!msg) return;
 
-            const targetRef = getDbRef(targetId);
-            onValue(targetRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                set(targetRef, { ...data, message: msg });
-            }, { onlyOnce: true });
+            update(getDbRef(targetId), { message: msg })
+                .catch(err => alert("Lỗi gửi tin nhắn: " + err.message));
             input.value = '';
         }
 
         function clearQuickMsg(targetId) {
-            const targetRef = getDbRef(targetId);
-            onValue(targetRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                set(targetRef, { ...data, message: '' });
-            }, { onlyOnce: true });
+            update(getDbRef(targetId), { message: '' })
+                .catch(err => alert("Lỗi xóa tin nhắn: " + err.message));
         }
 
         function listenMonitor(targetId, elementId) {
@@ -420,15 +431,15 @@
             onValue(getDbRef(targetId), (snapshot) => {
                 const data = snapshot.val();
                 
-                // Nếu chưa có dữ liệu trên server cho job này, hiển thị trạng thái chờ mặc định thay vì kẹt Connecting
                 if (!data) {
-                    bodyBg.className = "flex-1 flex flex-col justify-center items-center p-4 sm:p-8 text-center transition-bg h-full w-full overflow-hidden relative bg-slate-950 text-white";
+                    bodyBg.className = "flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg h-full w-full overflow-hidden relative bg-slate-950 text-white";
                     statusBadge.innerText = 'PREVIEW';
                     statusSubtext.innerText = 'ĐÃ KẾT NỐI - CHỜ TÍN HIỆU';
                     return;
                 }
 
-                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-4 sm:p-8 text-center transition-bg h-full w-full overflow-hidden relative " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
+                // Cập nhật màu nền và chữ chính xác theo dữ liệu server trả về
+                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg h-full w-full overflow-hidden relative " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
                 statusBadge.innerText = data.titleEng || 'STANDBY';
                 statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
 
@@ -439,12 +450,13 @@
                     customMsg.classList.add('hidden');
                 }
 
+                // Kiểm tra triggerTime mới để kích hoạt đếm ngược chính xác đồng bộ
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
                     lastTriggerTime = data.triggerTime;
 
+                    if (activeTimer) clearInterval(activeTimer);
+
                     if (data.countdownSec && data.countdownSec > 0) {
-                        if (activeTimer) clearInterval(activeTimer);
-                        
                         let remainingSec = data.countdownSec;
                         countdownBanner.classList.remove('hidden');
                         timerNum.innerText = remainingSec;
@@ -459,7 +471,6 @@
                             }
                         }, 1000);
                     } else {
-                        if (activeTimer) clearInterval(activeTimer);
                         countdownBanner.classList.add('hidden');
                     }
                 }
