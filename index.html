@@ -12,18 +12,17 @@
             50% { opacity: 0.3; }
         }
         .animate-pulse-fast { animation: pulse-fast 0.8s infinite; }
-        @keyframes pop-in {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-pop { animation: pop-in 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-950 text-white h-screen flex flex-col justify-between overflow-hidden font-sans">
 
     <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET) ==================== -->
     <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950 relative">
+        <!-- Dòng đếm ngược hiển thị phía trên trạng thái chính -->
+        <div id="caster-countdown-banner" class="text-2xl md:text-4xl font-extrabold text-amber-300 bg-black/60 px-8 py-3 rounded-2xl mb-6 tracking-wider uppercase border-2 border-amber-400/50 hidden animate-pulse-fast">
+            ⏱️ ĐẾM NGƯỢC: <span id="caster-timer-num">5</span>s
+        </div>
+
         <!-- Đèn Tally Trạng Thái Chính -->
         <div id="status-badge" class="text-5xl md:text-8xl font-black uppercase tracking-wider mb-6 px-10 py-6 rounded-3xl bg-black/40 shadow-2xl border-4 border-white/20">
             CONNECTING...
@@ -35,12 +34,6 @@
         <!-- Chú ý lời nhắc từ Đạo diễn -->
         <div id="custom-msg" class="text-3xl md:text-5xl font-extrabold max-w-5xl text-amber-300 bg-black/70 border-4 border-amber-400 px-8 py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast">
         </div>
-
-        <!-- Lớp phủ Đếm ngược (Countdown Overlay) -->
-        <div id="countdown-overlay" class="absolute inset-0 bg-black/95 z-50 flex flex-col justify-center items-center hidden">
-            <div class="text-xl md:text-3xl font-bold text-amber-400 tracking-widest uppercase mb-4">CHUẨN BỊ CHUYỂN TRẠNG THÁI</div>
-            <div id="countdown-number" class="text-9xl md:text-[14rem] font-black text-white animate-pop">5</div>
-        </div>
     </div>
 
     <!-- ==================== KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) ==================== -->
@@ -50,7 +43,7 @@
                 <span>🎛️ BẢNG ĐIỀU KHIỂN TALLY CASTER (VEDC)</span>
             </h1>
             <span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                ⚡ Realtime Dual-Panel Mode + Countdown
+                ⚡ Realtime Dual-Panel Mode
             </span>
         </div>
 
@@ -64,9 +57,16 @@
                         <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
                             <span>🎙️ BÀN 1</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">MAIN</span>
                         </h2>
-                        <!-- Màn hình trạng thái thu nhỏ -->
-                        <div id="monitor-c1" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
-                            STANDBY
+                        
+                        <!-- Ô tùy chọn điền số giây đếm ngược & Màn hình monitor thu nhỏ -->
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-300">
+                                <span class="mr-1 text-slate-400">⏱️ Sec:</span>
+                                <input type="number" id="input-c1-sec" value="5" min="0" max="60" class="w-10 bg-slate-900 text-center text-white font-black rounded focus:outline-none focus:border-indigo-500 py-0.5">
+                            </div>
+                            <div id="monitor-c1" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                                STANDBY
+                            </div>
                         </div>
                     </div>
 
@@ -117,9 +117,16 @@
                         <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
                             <span>🎧 BÀN 2</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">ANALYST</span>
                         </h2>
-                        <!-- Màn hình trạng thái thu nhỏ -->
-                        <div id="monitor-c2" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
-                            STANDBY
+                        
+                        <!-- Ô tùy chọn điền số giây đếm ngược & Màn hình monitor thu nhỏ -->
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-300">
+                                <span class="mr-1 text-slate-400">⏱️ Sec:</span>
+                                <input type="number" id="input-c2-sec" value="5" min="0" max="60" class="w-10 bg-slate-900 text-center text-white font-black rounded focus:outline-none focus:border-indigo-500 py-0.5">
+                            </div>
+                            <div id="monitor-c2" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                                STANDBY
+                            </div>
                         </div>
                     </div>
 
@@ -200,20 +207,20 @@
         // --- ĐẠO DIỄN: Gán sự kiện trực tiếp cho Bàn 1 & Bàn 2 ---
         function initDirectorPanel() {
             // Sự kiện Bàn 1
-            document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white');
-            document.getElementById('btn-c1-standby').onclick = () => sendSignal('caster_1', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white');
-            document.getElementById('btn-c1-caugio').onclick = () => sendSignal('caster_1', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950');
-            document.getElementById('btn-c1-out').onclick = () => sendSignal('caster_1', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white');
-            document.getElementById('btn-c1-break').onclick = () => sendSignal('caster_1', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white');
+            document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white', 'input-c1-sec');
+            document.getElementById('btn-c1-standby').onclick = () => sendSignal('caster_1', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white', 'input-c1-sec');
+            document.getElementById('btn-c1-caugio').onclick = () => sendSignal('caster_1', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950', 'input-c1-sec');
+            document.getElementById('btn-c1-out').onclick = () => sendSignal('caster_1', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white', 'input-c1-sec');
+            document.getElementById('btn-c1-break').onclick = () => sendSignal('caster_1', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white', 'input-c1-sec');
             document.getElementById('btn-c1-sendmsg').onclick = () => sendQuickMsg('caster_1', 'input-c1-msg');
             document.getElementById('btn-c1-clearmsg').onclick = () => clearQuickMsg('caster_1');
 
             // Sự kiện Bàn 2
-            document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white');
-            document.getElementById('btn-c2-standby').onclick = () => sendSignal('caster_2', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white');
-            document.getElementById('btn-c2-caugio').onclick = () => sendSignal('caster_2', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950');
-            document.getElementById('btn-c2-out').onclick = () => sendSignal('caster_2', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white');
-            document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white');
+            document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'ON AIR', 'LÊN SÓNG', 'bg-red-600', 'text-white', 'input-c2-sec');
+            document.getElementById('btn-c2-standby').onclick = () => sendSignal('caster_2', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white', 'input-c2-sec');
+            document.getElementById('btn-c2-caugio').onclick = () => sendSignal('caster_2', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950', 'input-c2-sec');
+            document.getElementById('btn-c2-out').onclick = () => sendSignal('caster_2', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white', 'input-c2-sec');
+            document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white', 'input-c2-sec');
             document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
             document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
 
@@ -222,14 +229,15 @@
             listenMonitor('caster_2', 'monitor-c2');
         }
 
-        function sendSignal(targetId, titleEng, titleVie, bgClass, textClass) {
-            // Thêm một trường timestamp (thời gian bấm) để kích hoạt hiệu ứng đếm ngược bên phía máy tính bảng
+        function sendSignal(targetId, titleEng, titleVie, bgClass, textClass, secInputId) {
+            const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
             set(ref(db, 'signals/' + targetId), {
                 titleEng: titleEng,
                 titleVie: titleVie,
                 bgClass: bgClass,
                 textClass: textClass,
                 message: '',
+                countdownSec: countdownSec,
                 triggerTime: Date.now()
             }).catch(err => alert("Lỗi: " + err.message));
         }
@@ -266,71 +274,60 @@
             });
         }
 
-        // --- CASTER TABLET: Hiển thị tín hiệu siêu to & Hiệu ứng Đếm ngược 5s ---
+        // --- CASTER TABLET: Cập nhật trạng thái ngay lập tức + Chạy đếm ngược banner phía trên ---
         let lastTriggerTime = 0;
+        let activeTimer = null;
 
         function initCasterTablet(targetId) {
             const bodyBg = document.getElementById('caster-view');
             const statusBadge = document.getElementById('status-badge');
             const statusSubtext = document.getElementById('status-subtext');
             const customMsg = document.getElementById('custom-msg');
-            const countdownOverlay = document.getElementById('countdown-overlay');
-            const countdownNumber = document.getElementById('countdown-number');
+            const countdownBanner = document.getElementById('caster-countdown-banner');
+            const timerNum = document.getElementById('caster-timer-num');
 
             onValue(ref(db, 'signals/' + targetId), (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
 
-                // Kiểm tra nếu có tín hiệu thay đổi mới từ đạo diễn (triggerTime thay đổi)
+                // 1. Áp dụng ngay lập tức trạng thái mới lên màn hình Caster
+                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
+                statusBadge.innerText = data.titleEng || 'STANDBY';
+                statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
+
+                if (data.message && data.message.trim() !== '') {
+                    customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
+                    customMsg.classList.remove('hidden');
+                } else {
+                    customMsg.classList.add('hidden');
+                }
+
+                // 2. Nếu đạo diễn bấm nút có kèm số giây đếm ngược và có triggerTime mới
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
                     lastTriggerTime = data.triggerTime;
-                    
-                    // Kích hoạt đếm ngược 5 giây
-                    runCountdown(5, () => {
-                        applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg);
-                    });
-                } else {
-                    // Cập nhật thông thường (ví dụ lúc mới load trang hoặc cập nhật tin nhắn)
-                    applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg);
+
+                    if (data.countdownSec && data.countdownSec > 0) {
+                        if (activeTimer) clearInterval(activeTimer);
+                        
+                        let remainingSec = data.countdownSec;
+                        countdownBanner.classList.remove('hidden');
+                        timerNum.innerText = remainingSec;
+
+                        activeTimer = setInterval(() => {
+                            remainingSec--;
+                            if (remainingSec > 0) {
+                                timerNum.innerText = remainingSec;
+                            } else {
+                                clearInterval(activeTimer);
+                                countdownBanner.classList.add('hidden');
+                            }
+                        }, 1000);
+                    } else {
+                        if (activeTimer) clearInterval(activeTimer);
+                        countdownBanner.classList.add('hidden');
+                    }
                 }
             });
-
-            function runCountdown(seconds, callback) {
-                countdownOverlay.classList.remove('hidden');
-                let currentSec = seconds;
-                countdownNumber.innerText = currentSec;
-
-                const timer = setInterval(() => {
-                    currentSec--;
-                    if (currentSec > 0) {
-                        countdownNumber.innerText = currentSec;
-                        // Khởi động lại animation pop để số nhảy mượt
-                        countdownNumber.classList.remove('animate-pop');
-                        void countdownNumber.offsetWidth;
-                        countdownNumber.classList.add('animate-pop');
-                    } else {
-                        clearInterval(timer);
-                        countdownOverlay.classList.add('hidden');
-                        if (callback) callback();
-                    }
-                }, 1000);
-            }
-        }
-
-        function applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg) {
-            bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
-            bodyBg.classList.et ? bodyBg.classList.add(data.bgClass || 'bg-slate-950') : bodyBg.className += ' ' + (data.bgClass || 'bg-slate-950');
-            bodyBg.classList.add(data.textClass || 'text-white');
-            
-            statusBadge.innerText = data.titleEng || 'STANDBY';
-            statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
-
-            if (data.message && data.message.trim() !== '') {
-                customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
-                customMsg.classList.remove('hidden');
-            } else {
-                customMsg.classList.add('hidden');
-            }
         }
     </script>
 </body>
