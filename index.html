@@ -6,8 +6,6 @@
     <title>VEDC Caster Signal System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .transition-bg { transition: background-color 0.25s ease, color 0.25s ease; }
-        
         @keyframes pulse-fast {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
@@ -31,7 +29,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-white h-screen w-screen flex flex-col justify-between overflow-x-hidden font-sans select-none">
+<body id="main-body" class="bg-slate-950 text-white h-screen w-screen flex flex-col justify-between overflow-x-hidden font-sans select-none" style="background-color: #020617; transition: background-color 0.2s ease;">
 
     <!-- ==================== KHU VỰC CHỌN JOB VÀ BÀN ==================== -->
     <div id="job-select-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-6 text-center bg-slate-950 min-h-screen">
@@ -57,7 +55,7 @@
                 </button>
                 
                 <div class="pt-3 border-t border-slate-800">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 text-left">Hoặc nhập tên Job tùy chỉnh (vd: vmc-fall-2026):</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 text-left">Hoặc nhập tên Job tùy chỉnh (vd: vmc):</label>
                     <div class="flex gap-2">
                         <input type="text" id="custom-job-input" placeholder="Nhập tên job..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                         <button id="btn-custom-job" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">VÀO</button>
@@ -81,13 +79,12 @@
     </div>
 
     <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER ==================== -->
-    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg bg-slate-950 relative h-full w-full overflow-hidden">
+    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center relative h-full w-full overflow-hidden">
         
         <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/80 border border-white/20 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-slate-200 transition z-10 shadow">
             🔄 Đổi Bàn / Job
         </button>
 
-        <!-- Nhãn định danh bàn đang hiển thị -->
         <div id="caster-desk-badge" class="bg-black/60 border border-white/20 px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300 mb-3 shadow-lg">
             Đang kết nối...
         </div>
@@ -169,6 +166,11 @@
                             <span>🟡 CÂU GIỜ</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
                         </button>
+                        <!-- Nút Chuyển về MC mới bổ sung -->
+                        <button id="btn-c1-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CHUYỂN VỀ MC</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
+                        </button>
                         <button id="btn-c1-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🔵 CASTER OUT</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
@@ -229,6 +231,11 @@
                         <button id="btn-c2-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟡 CÂU GIỜ</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
+                        </button>
+                        <!-- Nút Chuyển về MC mới bổ sung -->
+                        <button id="btn-c2-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CHUYỂN VỀ MC</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
                         </button>
                         <button id="btn-c2-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🔵 CASTER OUT</span>
@@ -353,23 +360,27 @@
         }
 
         function initDirectorPanel() {
-            document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', 'bg-red-700', 'text-white', 'input-c1-sec');
-            document.getElementById('btn-c1-cam-on').onclick = () => sendSignal('caster_1', 'CASTER LÊN HÌNH', 'ON CAMERA', 'bg-red-600', 'text-white', 'input-c1-sec');
-            document.getElementById('btn-c1-cam-off').onclick = () => sendSignal('caster_1', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', 'bg-black border-4 border-red-500', 'text-white', 'input-c1-sec');
-            document.getElementById('btn-c1-standby').onclick = () => sendSignal('caster_1', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white', 'input-c1-sec');
-            document.getElementById('btn-c1-caugio').onclick = () => sendSignal('caster_1', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950', 'input-c1-sec');
-            document.getElementById('btn-c1-out').onclick = () => sendSignal('caster_1', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white', 'input-c1-sec');
-            document.getElementById('btn-c1-break').onclick = () => sendSignal('caster_1', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white', 'input-c1-sec');
+            // Bàn 1
+            document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', '#b91c1c', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-cam-on').onclick = () => sendSignal('caster_1', 'CASTER LÊN HÌNH', 'ON CAMERA', '#dc2626', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-cam-off').onclick = () => sendSignal('caster_1', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', '#000000', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-standby').onclick = () => sendSignal('caster_1', 'PREVIEW', 'STANDBY / CHUẨN BỊ', '#059669', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-caugio').onclick = () => sendSignal('caster_1', 'CÂU GIỜ', 'HOLD TIME', '#f59e0b', '#030712', 'input-c1-sec');
+            document.getElementById('btn-c1-mc').onclick = () => sendSignal('caster_1', 'CHUYỂN VỀ MC', 'BACK TO HOST / MC', '#0d9488', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-out').onclick = () => sendSignal('caster_1', 'CASTER OUT', 'BÌNH LUẬN XONG', '#2563eb', '#ffffff', 'input-c1-sec');
+            document.getElementById('btn-c1-break').onclick = () => sendSignal('caster_1', 'BREAK', 'NGHỈ GIẢI LAO', '#9333ea', '#ffffff', 'input-c1-sec');
             document.getElementById('btn-c1-sendmsg').onclick = () => sendQuickMsg('caster_1', 'input-c1-msg');
             document.getElementById('btn-c1-clearmsg').onclick = () => clearQuickMsg('caster_1');
 
-            document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', 'bg-red-700', 'text-white', 'input-c2-sec');
-            document.getElementById('btn-c2-cam-on').onclick = () => sendSignal('caster_2', 'CASTER LÊN HÌNH', 'ON CAMERA', 'bg-red-600', 'text-white', 'input-c2-sec');
-            document.getElementById('btn-c2-cam-off').onclick = () => sendSignal('caster_2', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', 'bg-black border-4 border-red-500', 'text-white', 'input-c2-sec');
-            document.getElementById('btn-c2-standby').onclick = () => sendSignal('caster_2', 'PREVIEW', 'STANDBY / CHUẨN BỊ', 'bg-emerald-600', 'text-white', 'input-c2-sec');
-            document.getElementById('btn-c2-caugio').onclick = () => sendSignal('caster_2', 'CÂU GIỜ', 'HOLD TIME', 'bg-amber-500', 'text-slate-950', 'input-c2-sec');
-            document.getElementById('btn-c2-out').onclick = () => sendSignal('caster_2', 'CASTER OUT', 'BÌNH LUẬN XONG', 'bg-blue-600', 'text-white', 'input-c2-sec');
-            document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', 'bg-purple-600', 'text-white', 'input-c2-sec');
+            // Bàn 2
+            document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', '#b91c1c', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-cam-on').onclick = () => sendSignal('caster_2', 'CASTER LÊN HÌNH', 'ON CAMERA', '#dc2626', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-cam-off').onclick = () => sendSignal('caster_2', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', '#000000', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-standby').onclick = () => sendSignal('caster_2', 'PREVIEW', 'STANDBY / CHUẨN BỊ', '#059669', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-caugio').onclick = () => sendSignal('caster_2', 'CÂU GIỜ', 'HOLD TIME', '#f59e0b', '#030712', 'input-c2-sec');
+            document.getElementById('btn-c2-mc').onclick = () => sendSignal('caster_2', 'CHUYỂN VỀ MC', 'BACK TO HOST / MC', '#0d9488', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-out').onclick = () => sendSignal('caster_2', 'CASTER OUT', 'BÌNH LUẬN XONG', '#2563eb', '#ffffff', 'input-c2-sec');
+            document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', '#9333ea', '#ffffff', 'input-c2-sec');
             document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
             document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
 
@@ -377,14 +388,14 @@
             listenMonitor('caster_2', 'monitor-c2');
         }
 
-        // Dùng set() hoàn toàn mới với timestamp chuẩn để đồng bộ tuyệt đối giữa PC và điện thoại
-        function sendSignal(targetId, titleEng, titleVie, bgClass, textClass, secInputId) {
+        // Gửi tín hiệu kèm mã màu HEX trực tiếp để đổi màu nền siêu mượt
+        function sendSignal(targetId, titleEng, titleVie, bgColor, textColor, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
             set(getDbRef(targetId), {
                 titleEng: titleEng,
                 titleVie: titleVie,
-                bgClass: bgClass,
-                textClass: textClass,
+                bgColor: bgColor,
+                textColor: textColor,
                 message: '',
                 countdownSec: countdownSec,
                 triggerTime: Date.now()
@@ -412,7 +423,8 @@
                 const data = snapshot.val();
                 if (data) {
                     monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
-                    monitorEl.className = `px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black uppercase shadow whitespace-nowrap ${data.bgClass} ${data.textClass}`;
+                    monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
+                    monitorEl.style.color = data.textColor || '#ffffff';
                 }
             });
         }
@@ -421,7 +433,8 @@
         let activeTimer = null;
 
         function initCasterTablet(targetId) {
-            const bodyBg = document.getElementById('caster-view');
+            const viewContainer = document.getElementById('caster-view');
+            const mainBody = document.getElementById('main-body');
             const statusBadge = document.getElementById('status-badge');
             const statusSubtext = document.getElementById('status-subtext');
             const customMsg = document.getElementById('custom-msg');
@@ -432,14 +445,17 @@
                 const data = snapshot.val();
                 
                 if (!data) {
-                    bodyBg.className = "flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg h-full w-full overflow-hidden relative bg-slate-950 text-white";
+                    mainBody.style.backgroundColor = '#020617';
+                    mainBody.style.color = '#ffffff';
                     statusBadge.innerText = 'PREVIEW';
                     statusSubtext.innerText = 'ĐÃ KẾT NỐI - CHỜ TÍN HIỆU';
                     return;
                 }
 
-                // Cập nhật màu nền và chữ chính xác theo dữ liệu server trả về
-                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center transition-bg h-full w-full overflow-hidden relative " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
+                // Cập nhật màu trực tiếp bằng Style màu HEX (tránh lỗi cache class của Tailwind)
+                mainBody.style.backgroundColor = data.bgColor || '#020617';
+                mainBody.style.color = data.textColor || '#ffffff';
+
                 statusBadge.innerText = data.titleEng || 'STANDBY';
                 statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
 
@@ -450,7 +466,6 @@
                     customMsg.classList.add('hidden');
                 }
 
-                // Kiểm tra triggerTime mới để kích hoạt đếm ngược chính xác đồng bộ
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
                     lastTriggerTime = data.triggerTime;
 
