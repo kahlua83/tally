@@ -2,195 +2,264 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VEDC Caster Signal System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .transition-bg { transition: background-color 0.25s ease, color 0.25s ease; }
+        
         @keyframes pulse-fast {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
         .animate-pulse-fast { animation: pulse-fast 0.8s infinite; }
+
+        /* Font size co giãn linh hoạt theo kích thước màn hình */
+        .responsive-title {
+            font-size: clamp(2rem, 7vw, 6rem);
+            line-height: 1.1;
+        }
+        .responsive-subtext {
+            font-size: clamp(1.1rem, 3.5vw, 2.5rem);
+            line-height: 1.2;
+        }
+        .responsive-msg {
+            font-size: clamp(1.2rem, 4vw, 3rem);
+            line-height: 1.3;
+        }
+        .responsive-countdown {
+            font-size: clamp(1.2rem, 3.8vw, 2.2rem);
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-white h-screen flex flex-col justify-between overflow-hidden font-sans">
+<body class="bg-slate-950 text-white h-screen w-screen flex flex-col justify-between overflow-x-hidden font-sans select-none">
+
+    <!-- ==================== KHU VỰC CHỌN JOB VÀ BÀN (SELECT JOB & DESK SCREEN) ==================== -->
+    <div id="job-select-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-6 text-center bg-slate-950 min-h-screen">
+        <div class="bg-slate-900 border-2 border-slate-800 p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-2xl">
+            <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 mb-2 flex items-center justify-center gap-2">
+                <span>🎛️ VEDC TALLY</span>
+            </h1>
+            <p id="select-step-title" class="text-slate-400 text-xs sm:text-sm mb-6">Bước 1: Chọn Job livestream để bắt đầu</p>
+
+            <!-- BƯỚC 1: CHỌN JOB -->
+            <div id="step-job-container" class="space-y-3 mb-6">
+                <button onclick="selectPresetJob('job1')" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition flex items-center justify-between text-sm sm:text-base">
+                    <span>📡 JOB 1 (Sự kiện 1)</span>
+                    <span class="text-xs bg-indigo-900 px-2 py-1 rounded">job1</span>
+                </button>
+                <button onclick="selectPresetJob('job2')" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl transition flex items-center justify-between text-sm sm:text-base">
+                    <span>🎧 JOB 2 (Sự kiện 2)</span>
+                    <span class="text-xs bg-emerald-900 px-2 py-1 rounded">job2</span>
+                </button>
+                <button onclick="selectPresetJob('job3')" class="w-full py-3.5 px-4 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl transition flex items-center justify-between text-sm sm:text-base">
+                    <span>🎙️ JOB 3 (Sự kiện 3)</span>
+                    <span class="text-xs bg-purple-900 px-2 py-1 rounded">job3</span>
+                </button>
+                
+                <div class="pt-3 border-t border-slate-800">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 text-left">Hoặc nhập tên Job tùy chỉnh:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-job-input" placeholder="Ví dụ: bck-ss1..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <button id="btn-custom-job" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">VÀO</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BƯỚC 2: CHỌN BÀN CASTER -->
+            <div id="step-caster-desk-container" class="space-y-3 mb-6 hidden">
+                <button onclick="selectCasterDesk('caster_1')" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 font-black text-base sm:text-lg rounded-2xl transition flex items-center justify-center gap-2">
+                    🎙️ BÀN 1 (MAIN CASTER)
+                </button>
+                <button onclick="selectCasterDesk('caster_2')" class="w-full py-4 px-4 bg-teal-600 hover:bg-teal-500 font-black text-base sm:text-lg rounded-2xl transition flex items-center justify-center gap-2">
+                    🎧 BÀN 2 (ANALYST DESK)
+                </button>
+                <button onclick="resetSelectStep()" class="text-xs font-bold text-slate-400 hover:text-white pt-2 underline">
+                    ⬅️ Chọn lại Job khác
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET/PHONE) ==================== -->
-    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950 relative">
-        <!-- Dòng đếm ngược hiển thị phía trên trạng thái chính -->
-        <div id="caster-countdown-banner" class="text-2xl md:text-4xl font-extrabold text-amber-300 bg-black/60 px-8 py-3 rounded-2xl mb-6 tracking-wider uppercase border-2 border-amber-400/50 hidden animate-pulse-fast">
+    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-8 text-center transition-bg bg-slate-950 relative h-full w-full overflow-hidden">
+        
+        <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/40 hover:bg-black/70 border border-white/20 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold text-slate-300 transition z-10">
+            🔄 Đổi Bàn / Job
+        </button>
+
+        <!-- Banner đếm ngược -->
+        <div id="caster-countdown-banner" class="responsive-countdown font-extrabold text-amber-300 bg-black/70 px-6 sm:px-10 py-2.5 sm:py-3.5 rounded-2xl mb-4 sm:mb-8 tracking-wider uppercase border-2 border-amber-400/60 hidden animate-pulse-fast shadow-2xl max-w-full">
             ⏱️ ĐẾM NGƯỢC: <span id="caster-timer-num">5</span>s
         </div>
 
         <!-- Đèn Tally Trạng Thái Chính -->
-        <div id="status-badge" class="text-5xl md:text-8xl font-black uppercase tracking-wider mb-6 px-10 py-6 rounded-3xl bg-black/40 shadow-2xl border-4 border-white/20">
+        <div id="status-badge" class="responsive-title font-black uppercase tracking-wider mb-3 sm:mb-6 px-6 sm:px-12 py-4 sm:py-8 rounded-2xl sm:rounded-3xl bg-black/40 shadow-2xl border-2 sm:border-4 border-white/20 max-w-full break-words">
             CONNECTING...
         </div>
-        <div id="status-subtext" class="text-2xl md:text-4xl font-bold tracking-wide uppercase opacity-90 mb-8">
+        
+        <div id="status-subtext" class="responsive-subtext font-bold tracking-wide uppercase opacity-90 mb-4 sm:mb-8 max-w-full break-words">
             Đang kết nối...
         </div>
 
-        <!-- Chú ý lời nhắc từ Đạo diễn -->
-        <div id="custom-msg" class="text-3xl md:text-5xl font-extrabold max-w-5xl text-amber-300 bg-black/70 border-4 border-amber-400 px-8 py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast">
+        <!-- Chú ý lời nhắc -->
+        <div id="custom-msg" class="responsive-msg font-extrabold max-w-5xl w-full text-amber-300 bg-black/80 border-2 sm:border-4 border-amber-400 px-4 sm:px-8 py-4 sm:py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast break-words">
         </div>
 
-        <!-- Tín hiệu giữ sáng màn hình Screen Wake Lock -->
-        <div id="wake-lock-status" class="absolute bottom-4 text-xs font-semibold text-slate-500 opacity-60">
+        <div id="wake-lock-status" class="absolute bottom-2 sm:bottom-4 text-[10px] sm:text-xs font-semibold text-slate-500 opacity-60">
             💡 Screen Wake Lock: Off
         </div>
     </div>
 
     <!-- ==================== KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) ==================== -->
-    <div id="director-view" class="hidden flex-1 p-6 overflow-y-auto max-w-7xl mx-auto w-full">
-        <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
-            <h1 class="text-3xl font-black text-indigo-400 flex items-center gap-3">
+    <div id="director-view" class="hidden flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl mx-auto w-full">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+            <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 flex items-center gap-2">
                 <span>🎛️ BẢNG ĐIỀU KHIỂN TALLY CASTER (VEDC)</span>
             </h1>
-            <span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                ⚡ Realtime Dual-Panel Mode
-            </span>
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <span id="job-badge" class="bg-amber-950 text-amber-300 border border-amber-700/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    🏷️ Job: Default
+                </span>
+                <button id="btn-change-job" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1 rounded-full text-xs font-bold text-slate-300 transition">
+                    🔄 Đổi Job
+                </button>
+            </div>
         </div>
 
         <!-- Chia 2 cột riêng biệt cho Bàn 1 & Bàn 2 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
 
             <!-- ================= BÀN 1 (MAIN CASTER) ================= -->
-            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between">
                 <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                            <span>🎙️ BÀN 1</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">MAIN</span>
+                    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 flex items-center gap-2">
+                            <span>🎙️ BÀN 1</span> <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded">MAIN</span>
                         </h2>
                         
-                        <!-- Ô tùy chọn điền số giây đếm ngược & Màn hình monitor thu nhỏ -->
                         <div class="flex items-center gap-2">
                             <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-300">
                                 <span class="mr-1 text-slate-400">⏱️ Sec:</span>
                                 <input type="number" id="input-c1-sec" value="5" min="0" max="60" class="w-10 bg-slate-900 text-center text-white font-black rounded focus:outline-none focus:border-indigo-500 py-0.5">
                             </div>
-                            <div id="monitor-c1" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                            <div id="monitor-c1" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg whitespace-nowrap">
                                 STANDBY
                             </div>
                         </div>
                     </div>
 
-                    <!-- Lưới các nút bấm Bàn 1 -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button id="btn-c1-onair" class="p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
+                    <div class="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
+                        <button id="btn-c1-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
                             <span>📡 STREAM ON AIR</span>
-                            <span class="text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
                         </button>
 
-                        <button id="btn-c1-cam-on" class="p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎥 CASTER LÊN HÌNH</span>
-                            <span class="text-xs font-normal opacity-80">ON CAMERA</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
-                        <button id="btn-c1-cam-off" class="p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎙️ CASTER XUỐNG HÌNH</span>
-                            <span class="text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
                         </button>
 
-                        <button id="btn-c1-standby" class="p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟢 PREVIEW</span>
-                            <span class="text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
                         </button>
 
-                        <button id="btn-c1-caugio" class="p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟡 CÂU GIỜ</span>
-                            <span class="text-xs font-normal opacity-80">HOLD TIME</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
                         </button>
 
-                        <button id="btn-c1-out" class="p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🔵 CASTER OUT</span>
-                            <span class="text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
                         </button>
 
-                        <button id="btn-c1-break" class="p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c1-break" class="p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟣 BREAK</span>
-                            <span class="text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Lời nhắc nhanh Bàn 1 -->
-                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <div class="bg-slate-950/60 p-3.5 sm:p-4 rounded-2xl border border-slate-800">
                     <label class="block text-xs font-bold uppercase mb-2 text-amber-400">⚠️ Chú ý lời nhắc (Bàn 1):</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-c1-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <button id="btn-c1-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition">GỬI</button>
-                        <button id="btn-c1-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition">XÓA</button>
+                        <input type="text" id="input-c1-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500">
+                        <button id="btn-c1-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap">GỬI</button>
+                        <button id="btn-c1-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition whitespace-nowrap">XÓA</button>
                     </div>
                 </div>
             </div>
 
             <!-- ================= BÀN 2 (ANALYST / DESK) ================= -->
-            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+            <div class="bg-slate-900 border-2 border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between">
                 <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                            <span>🎧 BÀN 2</span> <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md">ANALYST</span>
+                    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 flex items-center gap-2">
+                            <span>🎧 BÀN 2</span> <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded">ANALYST</span>
                         </h2>
                         
-                        <!-- Ô tùy chọn điền số giây đếm ngược & Màn hình monitor thu nhỏ -->
                         <div class="flex items-center gap-2">
                             <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-300">
                                 <span class="mr-1 text-slate-400">⏱️ Sec:</span>
                                 <input type="number" id="input-c2-sec" value="5" min="0" max="60" class="w-10 bg-slate-900 text-center text-white font-black rounded focus:outline-none focus:border-indigo-500 py-0.5">
                             </div>
-                            <div id="monitor-c2" class="px-4 py-2 rounded-xl text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg">
+                            <div id="monitor-c2" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black uppercase bg-slate-800 text-slate-400 border border-slate-700 transition-bg whitespace-nowrap">
                                 STANDBY
                             </div>
                         </div>
                     </div>
 
-                    <!-- Lưới các nút bấm Bàn 2 -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button id="btn-c2-onair" class="p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
+                    <div class="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
+                        <button id="btn-c2-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col col-span-2">
                             <span>📡 STREAM ON AIR</span>
-                            <span class="text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
                         </button>
 
-                        <button id="btn-c2-cam-on" class="p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎥 CASTER LÊN HÌNH</span>
-                            <span class="text-xs font-normal opacity-80">ON CAMERA</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
-                        <button id="btn-c2-cam-off" class="p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎙️ CASTER XUỐNG HÌNH</span>
-                            <span class="text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
                         </button>
 
-                        <button id="btn-c2-standby" class="p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟢 PREVIEW</span>
-                            <span class="text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
                         </button>
 
-                        <button id="btn-c2-caugio" class="p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟡 CÂU GIỜ</span>
-                            <span class="text-xs font-normal opacity-80">HOLD TIME</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
                         </button>
 
-                        <button id="btn-c2-out" class="p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🔵 CASTER OUT</span>
-                            <span class="text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
                         </button>
 
-                        <button id="btn-c2-break" class="p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                        <button id="btn-c2-break" class="p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🟣 BREAK</span>
-                            <span class="text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Lời nhắc nhanh Bàn 2 -->
-                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <div class="bg-slate-950/60 p-3.5 sm:p-4 rounded-2xl border border-slate-800">
                     <label class="block text-xs font-bold uppercase mb-2 text-amber-400">⚠️ Chú ý lời nhắc (Bàn 2):</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-c2-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <button id="btn-c2-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition">GỬI</button>
-                        <button id="btn-c2-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition">XÓA</button>
+                        <input type="text" id="input-c2-msg" placeholder="Gõ lời nhắc khẩn cấp..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500">
+                        <button id="btn-c2-sendmsg" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap">GỬI</button>
+                        <button id="btn-c2-clearmsg" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 transition whitespace-nowrap">XÓA</button>
                     </div>
                 </div>
             </div>
@@ -219,20 +288,66 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role') || 'director';
-        const casterId = urlParams.get('id') || 'caster_1';
+        let casterId = urlParams.get('id');
+        let jobId = urlParams.get('job');
 
-        if (role === 'director') {
-            document.getElementById('director-view').classList.remove('hidden');
-            initDirectorPanel();
+        if (!jobId) {
+            document.getElementById('job-select-view').classList.remove('hidden');
+            document.getElementById('step-job-container').classList.remove('hidden');
+            document.getElementById('step-caster-desk-container').classList.add('hidden');
+            document.getElementById('select-step-title').innerText = "Bước 1: Chọn Job livestream để bắt đầu";
+        } else if (role === 'caster' && !casterId) {
+            document.getElementById('job-select-view').classList.remove('hidden');
+            document.getElementById('step-job-container').classList.add('hidden');
+            document.getElementById('step-caster-desk-container').classList.remove('hidden');
+            document.getElementById('select-step-title').innerText = "Bước 2: Chọn màn hình Bàn Caster (Job: " + jobId + ")";
         } else {
-            document.getElementById('caster-view').classList.remove('hidden');
-            initCasterTablet(casterId);
-            requestWakeLock();
+            startApp();
         }
 
-        // --- ĐẠO DIỄN: Gán sự kiện trực tiếp cho Bàn 1 & Bàn 2 ---
+        window.selectPresetJob = function(jobName) {
+            urlParams.set('job', jobName);
+            window.location.search = urlParams.toString();
+        };
+
+        document.getElementById('btn-custom-job').onclick = () => {
+            const val = document.getElementById('custom-job-input').value.trim();
+            if (val) window.selectPresetJob(val);
+        };
+
+        window.selectCasterDesk = function(selectedDeskId) {
+            urlParams.set('id', selectedDeskId);
+            window.location.search = urlParams.toString();
+        };
+
+        window.resetSelectStep = function() {
+            urlParams.delete('job');
+            urlParams.delete('id');
+            window.location.search = urlParams.toString();
+        };
+
+        document.getElementById('btn-change-job').onclick = resetSelectStep;
+        document.getElementById('btn-caster-reset').onclick = resetSelectStep;
+
+        function startApp() {
+            document.getElementById('job-select-view').classList.add('hidden');
+
+            if (role === 'director') {
+                document.getElementById('director-view').classList.remove('hidden');
+                document.getElementById('job-badge').innerText = '🏷️ Job: ' + jobId;
+                initDirectorPanel();
+            } else {
+                document.getElementById('caster-view').classList.remove('hidden');
+                initCasterTablet(casterId);
+                requestWakeLock();
+            }
+        }
+
+        function getDbRef(targetCaster) {
+            return ref(db, `jobs/${jobId}/signals/${targetCaster}`);
+        }
+
         function initDirectorPanel() {
-            // Sự kiện Bàn 1
             document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', 'bg-red-700', 'text-white', 'input-c1-sec');
             document.getElementById('btn-c1-cam-on').onclick = () => sendSignal('caster_1', 'CASTER LÊN HÌNH', 'ON CAMERA', 'bg-red-600', 'text-white', 'input-c1-sec');
             document.getElementById('btn-c1-cam-off').onclick = () => sendSignal('caster_1', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', 'bg-black border-4 border-red-500', 'text-white', 'input-c1-sec');
@@ -243,7 +358,6 @@
             document.getElementById('btn-c1-sendmsg').onclick = () => sendQuickMsg('caster_1', 'input-c1-msg');
             document.getElementById('btn-c1-clearmsg').onclick = () => clearQuickMsg('caster_1');
 
-            // Sự kiện Bàn 2
             document.getElementById('btn-c2-onair').onclick = () => sendSignal('caster_2', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', 'bg-red-700', 'text-white', 'input-c2-sec');
             document.getElementById('btn-c2-cam-on').onclick = () => sendSignal('caster_2', 'CASTER LÊN HÌNH', 'ON CAMERA', 'bg-red-600', 'text-white', 'input-c2-sec');
             document.getElementById('btn-c2-cam-off').onclick = () => sendSignal('caster_2', 'CASTER XUỐNG HÌNH', 'OFF CAM (VẪN BÌNH LUẬN)', 'bg-black border-4 border-red-500', 'text-white', 'input-c2-sec');
@@ -254,14 +368,13 @@
             document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
             document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
 
-            // Lắng nghe trạng thái để cập nhật Đèn Monitor nhỏ trên bàn đạo diễn
             listenMonitor('caster_1', 'monitor-c1');
             listenMonitor('caster_2', 'monitor-c2');
         }
 
         function sendSignal(targetId, titleEng, titleVie, bgClass, textClass, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
-            set(ref(db, 'signals/' + targetId), {
+            set(getDbRef(targetId), {
                 titleEng: titleEng,
                 titleVie: titleVie,
                 bgClass: bgClass,
@@ -277,7 +390,7 @@
             const msg = input.value.trim();
             if(!msg) return;
 
-            const targetRef = ref(db, 'signals/' + targetId);
+            const targetRef = getDbRef(targetId);
             onValue(targetRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 set(targetRef, { ...data, message: msg });
@@ -286,7 +399,7 @@
         }
 
         function clearQuickMsg(targetId) {
-            const targetRef = ref(db, 'signals/' + targetId);
+            const targetRef = getDbRef(targetId);
             onValue(targetRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 set(targetRef, { ...data, message: '' });
@@ -295,16 +408,15 @@
 
         function listenMonitor(targetId, elementId) {
             const monitorEl = document.getElementById(elementId);
-            onValue(ref(db, 'signals/' + targetId), (snapshot) => {
+            onValue(getDbRef(targetId), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
-                    monitorEl.className = `px-4 py-2 rounded-xl text-xs font-black uppercase shadow ${data.bgClass} ${data.textClass}`;
+                    monitorEl.className = `px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black uppercase shadow whitespace-nowrap ${data.bgClass} ${data.textClass}`;
                 }
             });
         }
 
-        // --- CASTER TABLET: Cập nhật trạng thái + Đếm ngược ---
         let lastTriggerTime = 0;
         let activeTimer = null;
 
@@ -316,12 +428,11 @@
             const countdownBanner = document.getElementById('caster-countdown-banner');
             const timerNum = document.getElementById('caster-timer-num');
 
-            onValue(ref(db, 'signals/' + targetId), (snapshot) => {
+            onValue(getDbRef(targetId), (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
 
-                // 1. Cập nhật ngay lập tức giao diện
-                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
+                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-4 sm:p-8 text-center transition-bg h-full w-full overflow-hidden relative " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
                 statusBadge.innerText = data.titleEng || 'STANDBY';
                 statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
 
@@ -332,7 +443,6 @@
                     customMsg.classList.add('hidden');
                 }
 
-                // 2. Chạy đếm ngược nếu có yêu cầu
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
                     lastTriggerTime = data.triggerTime;
 
@@ -360,24 +470,16 @@
             });
         }
 
-        // --- BỘ TỰ ĐỘNG GIỮ SÁNG MÀN HÌNH (SCREEN WAKE LOCK API) ---
         let wakeLock = null;
         async function requestWakeLock() {
             const statusEl = document.getElementById('wake-lock-status');
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    if (statusEl) statusEl.innerText = '💡 Screen Wake Lock: ACTIVE (Màn hình luôn sáng)';
-                    
-                    wakeLock.addEventListener('release', () => {
-                        if (statusEl) statusEl.innerText = '💡 Screen Wake Lock: Released';
-                    });
-                } else {
-                    if (statusEl) statusEl.innerText = '⚠️ Trình duyệt không hỗ trợ Wake Lock API';
+                    if (statusEl) statusEl.innerText = '💡 Screen Wake Lock: ACTIVE';
+                    wakeLock.addEventListener('release', () => {});
                 }
-            } catch (err) {
-                if (statusEl) statusEl.innerText = '⚠️ Wake Lock Error: ' + err.message;
-            }
+            } catch (err) {}
         }
 
         document.addEventListener('visibilitychange', async () => {
