@@ -12,12 +12,18 @@
             50% { opacity: 0.3; }
         }
         .animate-pulse-fast { animation: pulse-fast 0.8s infinite; }
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: pop-in 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-950 text-white h-screen flex flex-col justify-between overflow-hidden font-sans">
 
     <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET) ==================== -->
-    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950">
+    <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950 relative">
         <!-- Đèn Tally Trạng Thái Chính -->
         <div id="status-badge" class="text-5xl md:text-8xl font-black uppercase tracking-wider mb-6 px-10 py-6 rounded-3xl bg-black/40 shadow-2xl border-4 border-white/20">
             CONNECTING...
@@ -29,6 +35,12 @@
         <!-- Chú ý lời nhắc từ Đạo diễn -->
         <div id="custom-msg" class="text-3xl md:text-5xl font-extrabold max-w-5xl text-amber-300 bg-black/70 border-4 border-amber-400 px-8 py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast">
         </div>
+
+        <!-- Lớp phủ Đếm ngược (Countdown Overlay) -->
+        <div id="countdown-overlay" class="absolute inset-0 bg-black/95 z-50 flex flex-col justify-center items-center hidden">
+            <div class="text-xl md:text-3xl font-bold text-amber-400 tracking-widest uppercase mb-4">CHUẨN BỊ CHUYỂN TRẠNG THÁI</div>
+            <div id="countdown-number" class="text-9xl md:text-[14rem] font-black text-white animate-pop">5</div>
+        </div>
     </div>
 
     <!-- ==================== KHU VỰC ĐIỀU KHIỂN CHO ĐẠO DIỄN (PC) ==================== -->
@@ -38,7 +50,7 @@
                 <span>🎛️ BẢNG ĐIỀU KHIỂN TALLY CASTER (VEDC)</span>
             </h1>
             <span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                ⚡ Realtime Dual-Panel Mode
+                ⚡ Realtime Dual-Panel Mode + Countdown
             </span>
         </div>
 
@@ -211,12 +223,14 @@
         }
 
         function sendSignal(targetId, titleEng, titleVie, bgClass, textClass) {
+            // Thêm một trường timestamp (thời gian bấm) để kích hoạt hiệu ứng đếm ngược bên phía máy tính bảng
             set(ref(db, 'signals/' + targetId), {
                 titleEng: titleEng,
                 titleVie: titleVie,
                 bgClass: bgClass,
                 textClass: textClass,
-                message: ''
+                message: '',
+                triggerTime: Date.now()
             }).catch(err => alert("Lỗi: " + err.message));
         }
 
@@ -252,36 +266,71 @@
             });
         }
 
-        // --- CASTER TABLET: Hiển thị tín hiệu siêu to ---
+        // --- CASTER TABLET: Hiển thị tín hiệu siêu to & Hiệu ứng Đếm ngược 5s ---
+        let lastTriggerTime = 0;
+
         function initCasterTablet(targetId) {
             const bodyBg = document.getElementById('caster-view');
             const statusBadge = document.getElementById('status-badge');
             const statusSubtext = document.getElementById('status-subtext');
             const customMsg = document.getElementById('custom-msg');
+            const countdownOverlay = document.getElementById('countdown-overlay');
+            const countdownNumber = document.getElementById('countdown-number');
 
             onValue(ref(db, 'signals/' + targetId), (snapshot) => {
                 const data = snapshot.val();
-                bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
+                if (!data) return;
 
-                if (data) {
-                    bodyBg.classList.add(data.bgClass || 'bg-slate-950');
-                    bodyBg.classList.add(data.textClass || 'text-white');
-                    statusBadge.innerText = data.titleEng || 'STANDBY';
-                    statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
-
-                    if (data.message && data.message.trim() !== '') {
-                        customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
-                        customMsg.classList.remove('hidden');
-                    } else {
-                        customMsg.classList.add('hidden');
-                    }
+                // Kiểm tra nếu có tín hiệu thay đổi mới từ đạo diễn (triggerTime thay đổi)
+                if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
+                    lastTriggerTime = data.triggerTime;
+                    
+                    // Kích hoạt đếm ngược 5 giây
+                    runCountdown(5, () => {
+                        applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg);
+                    });
                 } else {
-                    bodyBg.classList.add('bg-slate-950', 'text-white');
-                    statusBadge.innerText = 'PREVIEW';
-                    statusSubtext.innerText = 'STANDBY / CHUẨN BỊ';
-                    customMsg.classList.add('hidden');
+                    // Cập nhật thông thường (ví dụ lúc mới load trang hoặc cập nhật tin nhắn)
+                    applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg);
                 }
             });
+
+            function runCountdown(seconds, callback) {
+                countdownOverlay.classList.remove('hidden');
+                let currentSec = seconds;
+                countdownNumber.innerText = currentSec;
+
+                const timer = setInterval(() => {
+                    currentSec--;
+                    if (currentSec > 0) {
+                        countdownNumber.innerText = currentSec;
+                        // Khởi động lại animation pop để số nhảy mượt
+                        countdownNumber.classList.remove('animate-pop');
+                        void countdownNumber.offsetWidth;
+                        countdownNumber.classList.add('animate-pop');
+                    } else {
+                        clearInterval(timer);
+                        countdownOverlay.classList.add('hidden');
+                        if (callback) callback();
+                    }
+                }, 1000);
+            }
+        }
+
+        function applyStatus(data, bodyBg, statusBadge, statusSubtext, customMsg) {
+            bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg ";
+            bodyBg.classList.et ? bodyBg.classList.add(data.bgClass || 'bg-slate-950') : bodyBg.className += ' ' + (data.bgClass || 'bg-slate-950');
+            bodyBg.classList.add(data.textClass || 'text-white');
+            
+            statusBadge.innerText = data.titleEng || 'STANDBY';
+            statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
+
+            if (data.message && data.message.trim() !== '') {
+                customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
+                customMsg.classList.remove('hidden');
+            } else {
+                customMsg.classList.add('hidden');
+            }
         }
     </script>
 </body>
