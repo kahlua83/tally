@@ -163,43 +163,43 @@
                         </div>
                     </div>
 
-                    <!-- Bố cục nút bấm mới: Stream On Air độc lập full hàng trên, chia đều các nút dưới -->
-                    <div class="space-y-2.5 mb-4">
-                        <button id="btn-c1-onair" class="w-full p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                    <!-- Lưới 8 nút bấm (2 cột x 4 hàng bằng nhau hoàn toàn) -->
+                    <div class="grid grid-cols-2 gap-2.5 mb-4">
+                        <button id="btn-c1-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG SÓNG ĐANG PHÁT</span>
+                        </button>
+                        <button id="btn-c1-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎥 CASTER LÊN HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
-                        <div class="grid grid-cols-2 gap-2.5">
-                            <button id="btn-c1-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎥 CASTER LÊN HÌNH</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
-                            </button>
-                            <button id="btn-c1-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎙️ CASTER XUỐNG HÌNH</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
-                            </button>
-                            <button id="btn-c1-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟢 PREVIEW</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
-                            </button>
-                            <button id="btn-c1-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟡 CÂU GIỜ</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
-                            </button>
-                            <button id="btn-c1-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎙️ CHUYỂN VỀ MC</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
-                            </button>
-                            <button id="btn-c1-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🔵 CASTER OUT</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
-                            </button>
-                            <button id="btn-c1-break" class="col-span-2 p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟣 BREAK</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
-                            </button>
-                        </div>
+                        <button id="btn-c1-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CASTER XUỐNG HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
+                        </button>
+                        <button id="btn-c1-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        </button>
+
+                        <button id="btn-c1-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟡 CÂU GIỜ</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
+                        </button>
+                        <button id="btn-c1-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CHUYỂN VỀ MC</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
+                        </button>
+
+                        <button id="btn-c1-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔵 CASTER OUT</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                        </button>
+                        <button id="btn-c1-break" class="p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟣 BREAK</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                        </button>
                     </div>
                 </div>
 
@@ -232,43 +232,43 @@
                         </div>
                     </div>
 
-                    <!-- Bố cục nút bấm mới cho Bàn 2 -->
-                    <div class="space-y-2.5 mb-4">
-                        <button id="btn-c2-onair" class="w-full p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                    <!-- Lưới 8 nút bấm Bàn 2 (2 cột x 4 hàng bằng nhau hoàn toàn) -->
+                    <div class="grid grid-cols-2 gap-2.5 mb-4">
+                        <button id="btn-c2-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG LIVESTREAM ĐANG LÊN SÓNG</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG SÓNG ĐANG PHÁT</span>
+                        </button>
+                        <button id="btn-c2-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎥 CASTER LÊN HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
-                        <div class="grid grid-cols-2 gap-2.5">
-                            <button id="btn-c2-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎥 CASTER LÊN HÌNH</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
-                            </button>
-                            <button id="btn-c2-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎙️ CASTER XUỐNG HÌNH</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
-                            </button>
-                            <button id="btn-c2-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟢 PREVIEW</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
-                            </button>
-                            <button id="btn-c2-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟡 CÂU GIỜ</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
-                            </button>
-                            <button id="btn-c2-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🎙️ CHUYỂN VỀ MC</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
-                            </button>
-                            <button id="btn-c2-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🔵 CASTER OUT</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
-                            </button>
-                            <button id="btn-c2-break" class="col-span-2 p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                                <span>🟣 BREAK</span>
-                                <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
-                            </button>
-                        </div>
+                        <button id="btn-c2-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CASTER XUỐNG HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
+                        </button>
+                        <button id="btn-c2-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        </button>
+
+                        <button id="btn-c2-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟡 CÂU GIỜ</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">HOLD TIME</span>
+                        </button>
+                        <button id="btn-c2-mc" class="p-3 sm:p-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎙️ CHUYỂN VỀ MC</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BACK TO HOST / MC</span>
+                        </button>
+
+                        <button id="btn-c2-out" class="p-3 sm:p-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🔵 CASTER OUT</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">BÌNH LUẬN XONG</span>
+                        </button>
+                        <button id="btn-c2-break" class="p-3 sm:p-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟣 BREAK</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">NGHỈ GIẢI LAO</span>
+                        </button>
                     </div>
                 </div>
 
@@ -315,7 +315,6 @@
 
         if (jobId) jobId = cleanJobId(jobId);
 
-        // Logic điều hướng các bước khi vào trang
         const setupView = document.getElementById('setup-view');
         const stepRoleContainer = document.getElementById('step-role-container');
         const stepJobContainer = document.getElementById('step-job-container');
@@ -323,21 +322,18 @@
         const setupStepTitle = document.getElementById('setup-step-title');
 
         if (!role) {
-            // Bước 1: Chọn vai trò
             setupView.classList.remove('hidden');
             stepRoleContainer.classList.remove('hidden');
             stepJobContainer.classList.add('hidden');
             stepCasterDeskContainer.classList.add('hidden');
             setupStepTitle.innerText = "Bước 1: Chọn vai trò truy cập hệ thống";
         } else if (!jobId) {
-            // Bước 2: Chọn Job
             setupView.classList.remove('hidden');
             stepRoleContainer.classList.add('hidden');
             stepJobContainer.classList.remove('hidden');
             stepCasterDeskContainer.classList.add('hidden');
             setupStepTitle.innerText = `Bước 2: Chọn Job cho (${role === 'director' ? 'Đạo diễn' : 'Màn hình Caster'})`;
         } else if (role === 'caster' && !casterId) {
-            // Bước 3: Chọn Bàn Caster (chỉ dành cho màn hình Caster)
             setupView.classList.remove('hidden');
             stepRoleContainer.classList.add('hidden');
             stepJobContainer.classList.add('hidden');
