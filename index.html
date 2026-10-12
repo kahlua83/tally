@@ -16,7 +16,7 @@
 </head>
 <body class="bg-slate-950 text-white h-screen flex flex-col justify-between overflow-hidden font-sans">
 
-    <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET) ==================== -->
+    <!-- ==================== KHU VỰC HIỂN THỊ CHO CASTER (TABLET/PHONE) ==================== -->
     <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg bg-slate-950 relative">
         <!-- Dòng đếm ngược hiển thị phía trên trạng thái chính -->
         <div id="caster-countdown-banner" class="text-2xl md:text-4xl font-extrabold text-amber-300 bg-black/60 px-8 py-3 rounded-2xl mb-6 tracking-wider uppercase border-2 border-amber-400/50 hidden animate-pulse-fast">
@@ -33,6 +33,11 @@
 
         <!-- Chú ý lời nhắc từ Đạo diễn -->
         <div id="custom-msg" class="text-3xl md:text-5xl font-extrabold max-w-5xl text-amber-300 bg-black/70 border-4 border-amber-400 px-8 py-6 rounded-2xl shadow-2xl hidden animate-pulse-fast">
+        </div>
+
+        <!-- Tín hiệu giữ sáng màn hình Screen Wake Lock -->
+        <div id="wake-lock-status" class="absolute bottom-4 text-xs font-semibold text-slate-500 opacity-60">
+            💡 Screen Wake Lock: Off
         </div>
     </div>
 
@@ -202,6 +207,7 @@
         } else {
             document.getElementById('caster-view').classList.remove('hidden');
             initCasterTablet(casterId);
+            requestWakeLock(); // Bật giữ sáng màn hình vĩnh viễn cho máy Caster
         }
 
         // --- ĐẠO DIỄN: Gán sự kiện trực tiếp cho Bàn 1 & Bàn 2 ---
@@ -274,7 +280,7 @@
             });
         }
 
-        // --- CASTER TABLET: Cập nhật trạng thái ngay lập tức + Chạy đếm ngược banner phía trên ---
+        // --- CASTER TABLET: Cập nhật trạng thái + Đếm ngược ---
         let lastTriggerTime = 0;
         let activeTimer = null;
 
@@ -290,7 +296,7 @@
                 const data = snapshot.val();
                 if (!data) return;
 
-                // 1. Áp dụng ngay lập tức trạng thái mới lên màn hình Caster
+                // 1. Cập nhật ngay lập tức giao diện
                 bodyBg.className = "flex-1 flex flex-col justify-center items-center p-6 text-center transition-bg " + (data.bgClass || 'bg-slate-950') + " " + (data.textClass || 'text-white');
                 statusBadge.innerText = data.titleEng || 'STANDBY';
                 statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
@@ -302,7 +308,7 @@
                     customMsg.classList.add('hidden');
                 }
 
-                // 2. Nếu đạo diễn bấm nút có kèm số giây đếm ngược và có triggerTime mới
+                // 2. Chạy đếm ngược nếu có yêu cầu
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
                     lastTriggerTime = data.triggerTime;
 
@@ -329,6 +335,33 @@
                 }
             });
         }
+
+        // --- BỘ TỰ ĐỘNG GIỮ SÁNG MÀN HÌNH (SCREEN WAKE LOCK API) ---
+        let wakeLock = null;
+        async function requestWakeLock() {
+            const statusEl = document.getElementById('wake-lock-status');
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    if (statusEl) statusEl.innerText = '💡 Screen Wake Lock: ACTIVE (Màn hình luôn sáng)';
+                    
+                    wakeLock.addEventListener('release', () => {
+                        if (statusEl) statusEl.innerText = '💡 Screen Wake Lock: Released';
+                    });
+                } else {
+                    if (statusEl) statusEl.innerText = '⚠️ Trình duyệt không hỗ trợ Wake Lock API';
+                }
+            } catch (err) {
+                if (statusEl) statusEl.innerText = '⚠️ Wake Lock Error: ' + err.message;
+            }
+        }
+
+        // Tự động yêu cầu lại quyền giữ sáng nếu người dùng chuyển tab rồi quay lại
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
     </script>
 </body>
 </html>
