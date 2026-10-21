@@ -294,7 +294,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT TÍCH HỢP SUPABASE (Dùng chung kênh Global Broadcast không cần cấu hình database) -->
+    <!-- SCRIPT TÍCH HỢP SUPABASE (Dùng Database Table Sync) -->
     <script type="module">
         const SUPABASE_URL = 'https://omwirirvygtlmvcjrlik.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zfhPOosE4n_efrG_egojpg_WY7ryv7R';
@@ -402,16 +402,36 @@
             }
         }
 
-        // Kênh Global duy nhất qua Supabase Realtime
-        const globalChannel = supabaseClient.channel('vedc_global_room', {
-            config: { broadcast: { self: true } }
-        });
+        async function pushSignalToDB(targetId, signalData) {
+            const rowId = `${jobId}_${targetId}`;
+            await supabaseClient.from('tally_signals').upsert({
+                id: rowId,
+                payload: signalData
+            });
+        }
 
-        globalChannel.subscribe((status) => {
-            console.log("Supabase Realtime Status:", status);
-        });
+        let directorStateC1 = { message: '' };
+        let directorStateC2 = { message: '' };
 
         function initDirectorPanel() {
+            // Lắng nghe thay đổi để cập nhật trạng thái hiển thị trên Director
+            supabaseClient
+                .channel('director_sync')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tally_signals' }, (payload) => {
+                    const row = payload.new;
+                    if (row && row.id && row.id.startsWith(jobId + '_')) {
+                        const targetId = row.id.replace(jobId + '_', '');
+                        const data = row.payload;
+                        const monitorEl = document.getElementById(targetId === 'caster_1' ? 'monitor-c1' : 'monitor-c2');
+                        if (monitorEl && data && data.titleEng) {
+                            monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
+                            monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
+                            monitorEl.style.color = data.textColor || '#ffffff';
+                        }
+                    }
+                })
+                .subscribe();
+
             // Bàn 1
             document.getElementById('btn-c1-onair').onclick = () => sendSignal('caster_1', 'STREAM ON AIR', 'LUỒNG SÓNG ĐANG PHÁT', '#b91c1c', '#ffffff', 'input-c1-sec');
             document.getElementById('btn-c1-cam-on').onclick = () => sendSignal('caster_1', 'CASTER LÊN HÌNH', 'ON CAMERA', '#dc2626', '#ffffff', 'input-c1-sec');
@@ -435,46 +455,23 @@
             document.getElementById('btn-c2-break').onclick = () => sendSignal('caster_2', 'BREAK', 'NGHỈ GIẢI LAO', '#9333ea', '#ffffff', 'input-c2-sec');
             document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
             document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
-
-            // Lắng nghe hiển thị trên bảng điều khiển của Director
-            globalChannel.on('broadcast', { event: 'signal_update' }, (payload) => {
-                const data = payload.payload;
-                if (data && data.jobId === jobId) {
-                    const monitorEl = document.getElementById(data.targetId === 'caster_1' ? 'monitor-c1' : 'monitor-c2');
-                    if (monitorEl && data.titleEng) {
-                        monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
-                        monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
-                        monitorEl.style.color = data.textColor || '#ffffff';
-                    }
-                }
-            });
         }
 
-        let directorStateC1 = { message: '' };
-        let directorStateC2 = { message: '' };
-
-        function sendSignal(targetId, titleEng, titleVie, bgColor, textColor, secInputId) {
+        async function sendSignal(targetId, titleEng, titleVie, bgColor, textColor, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
             const msg = targetId === 'caster_1' ? directorStateC1.message : directorStateC2.message;
-
-            globalChannel.send({
-                type: 'broadcast',
-                event: 'signal_update',
-                payload: {
-                    jobId: jobId,
-                    targetId: targetId,
-                    titleEng: titleEng,
-                    titleVie: titleVie,
-                    bgColor: bgColor,
-                    textColor: textColor,
-                    message: msg,
-                    countdownSec: countdownSec,
-                    triggerTime: Date.now()
-                }
+            await pushSignalToDB(targetId, {
+                titleEng,
+                titleVie,
+                bgColor,
+                textColor,
+                message: msg,
+                countdownSec,
+                triggerTime: Date.now()
             });
         }
 
-        function sendQuickMsg(targetId, inputId) {
+        async function sendQuickMsg(targetId, inputId) {
             const input = document.getElementById(inputId);
             const msg = input.value.trim();
             if(!msg) return;
@@ -482,39 +479,35 @@
             if (targetId === 'caster_1') directorStateC1.message = msg;
             else directorStateC2.message = msg;
 
-            globalChannel.send({
-                type: 'broadcast',
-                event: 'signal_update',
-                payload: {
-                    jobId: jobId,
-                    targetId: targetId,
-                    message: msg,
-                    triggerTime: Date.now()
-                }
-            });
+            // Lấy trạng thái hiện tại từ DB để update message
+            const rowId = `${jobId}_${targetId}`;
+            const { data } = await supabaseClient.from('tally_signals').select('payload').eq('id', rowId).single();
+            const currentPayload = data ? data.payload : { titleEng: 'STANDBY', titleVie: 'SẴN SÀNG', bgColor: '#059669', textColor: '#ffffff' };
+            currentPayload.message = msg;
+            currentPayload.triggerTime = Date.now();
+
+            await pushSignalToDB(targetId, currentPayload);
             input.value = '';
         }
 
-        function clearQuickMsg(targetId) {
+        async function clearQuickMsg(targetId) {
             if (targetId === 'caster_1') directorStateC1.message = '';
             else directorStateC2.message = '';
 
-            globalChannel.send({
-                type: 'broadcast',
-                event: 'signal_update',
-                payload: {
-                    jobId: jobId,
-                    targetId: targetId,
-                    message: '',
-                    triggerTime: Date.now()
-                }
-            });
+            const rowId = `${jobId}_${targetId}`;
+            const { data } = await supabaseClient.from('tally_signals').select('payload').eq('id', rowId).single();
+            if (data && data.payload) {
+                const currentPayload = data.payload;
+                currentPayload.message = '';
+                currentPayload.triggerTime = Date.now();
+                await pushSignalToDB(targetId, currentPayload);
+            }
         }
 
         let lastTriggerTime = 0;
         let activeTimer = null;
 
-        function initCasterTablet(targetId) {
+        async function initCasterTablet(targetId) {
             const mainBody = document.getElementById('main-body');
             const statusBadge = document.getElementById('status-badge');
             const statusSubtext = document.getElementById('status-subtext');
@@ -522,10 +515,25 @@
             const countdownBanner = document.getElementById('caster-countdown-banner');
             const timerNum = document.getElementById('caster-timer-num');
 
-            globalChannel.on('broadcast', { event: 'signal_update' }, (payload) => {
-                const data = payload.payload;
-                if (!data || data.jobId !== jobId || data.targetId !== targetId) return;
+            const rowId = `${jobId}_${targetId}`;
 
+            // Lấy dữ liệu ban đầu
+            const { data } = await supabaseClient.from('tally_signals').select('payload').eq('id', rowId).single();
+            if (data && data.payload) {
+                applySignalData(data.payload);
+            }
+
+            // Lắng nghe thay đổi thời gian thực từ bảng
+            supabaseClient
+                .channel('caster_sync_' + targetId)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tally_signals', filter: `id=eq.${rowId}` }, (payload) => {
+                    if (payload.new && payload.new.payload) {
+                        applySignalData(payload.new.payload);
+                    }
+                })
+                .subscribe();
+
+            function applySignalData(data) {
                 if (data.bgColor) {
                     mainBody.style.backgroundColor = data.bgColor;
                     mainBody.style.color = data.textColor || '#ffffff';
@@ -565,7 +573,7 @@
                         countdownBanner.classList.add('hidden');
                     }
                 }
-            });
+            }
         }
 
         let wakeLock = null;
