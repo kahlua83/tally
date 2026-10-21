@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VEDC Caster Signal System</title>
     
-    <!-- Hệ thống Favicon chuẩn chính chủ VEDC[cite: 19] -->
+    <!-- Hệ thống Favicon chuẩn chính chủ VEDC -->
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -14,6 +14,9 @@
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện Supabase chính thức từ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         @keyframes pulse-fast {
             0%, 100% { opacity: 1; }
@@ -40,7 +43,7 @@
 </head>
 <body id="main-body" class="bg-slate-950 text-white h-screen w-screen flex flex-col justify-between overflow-x-hidden font-sans select-none" style="background-color: #020617; transition: background-color 0.2s ease;">
 
-    <!-- ==================== BƯỚC CÀI ĐẶT BAN ĐẦU[cite: 19] ==================== -->
+    <!-- ==================== BƯỚC CÀI ĐẶT BAN ĐẦU ==================== -->
     <div id="setup-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-6 text-center bg-slate-950 min-h-screen">
         <div class="bg-slate-900 border-2 border-slate-800 p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-2xl">
             <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 mb-2 flex items-center justify-center gap-2">
@@ -48,7 +51,7 @@
             </h1>
             <p id="setup-step-title" class="text-slate-400 text-xs sm:text-sm mb-6">Bước 1: Chọn vai trò truy cập hệ thống</p>
 
-            <!-- BƯỚC 1: CHỌN VAI TRÒ[cite: 19] -->
+            <!-- BƯỚC 1: CHỌN VAI TRÒ -->
             <div id="step-role-container" class="space-y-3 mb-4">
                 <button onclick="selectRole('director')" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 font-black text-base rounded-2xl transition flex items-center justify-center gap-2 shadow-lg">
                     <span>🎛️ ĐẠO DIỄN (DIRECTOR)</span>
@@ -58,7 +61,7 @@
                 </button>
             </div>
 
-            <!-- BƯỚC 2: CHỌN JOB[cite: 19] -->
+            <!-- BƯỚC 2: CHỌN JOB -->
             <div id="step-job-container" class="space-y-3 mb-6 hidden">
                 <button onclick="selectPresetJob('job1')" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition flex items-center justify-between text-sm sm:text-base">
                     <span>📡 JOB 1 (Sự kiện 1)</span>
@@ -88,7 +91,7 @@
                 </div>
             </div>
 
-            <!-- BƯỚC 3: CHỌN BÀN CASTER[cite: 19] -->
+            <!-- BƯỚC 3: CHỌN BÀN CASTER -->
             <div id="step-caster-desk-container" class="space-y-3 mb-6 hidden">
                 <button onclick="selectCasterDesk('caster_1')" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 font-black text-base sm:text-lg rounded-2xl transition flex items-center justify-center gap-2">
                     🎙️ BÀN 1 (MAIN CASTER)
@@ -103,7 +106,7 @@
         </div>
     </div>
 
-    <!-- ==================== MÀN HÌNH HIỂN THỊ CASTER (SCREEN)[cite: 19] ==================== -->
+    <!-- ==================== MÀN HÌNH HIỂN THỊ CASTER (SCREEN) ==================== -->
     <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center relative h-full w-full overflow-hidden">
         
         <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/80 border border-white/20 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-slate-200 transition z-10 shadow">
@@ -134,7 +137,7 @@
         </div>
     </div>
 
-    <!-- ==================== BẢNG ĐIỀU KHIỂN ĐẠO DIỄN (DIRECTOR)[cite: 19] ==================== -->
+    <!-- ==================== BẢNG ĐIỀU KHIỂN ĐẠO DIỄN (DIRECTOR) ==================== -->
     <div id="director-view" class="hidden flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl mx-auto w-full">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-slate-800">
             <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 flex items-center gap-2">
@@ -170,7 +173,7 @@
                         </div>
                     </div>
 
-                    <!-- 8 Nút bấm chuẩn lưới 2x4 (Đã đổi chỗ Preview lên trên Caster Lên Hình)[cite: 19] -->
+                    <!-- 8 Nút bấm chuẩn lưới 2x4 -->
                     <div class="grid grid-cols-2 gap-2.5 mb-4">
                         <button id="btn-c1-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
@@ -239,7 +242,7 @@
                         </div>
                     </div>
 
-                    <!-- 8 Nút bấm chuẩn lưới 2x4 (Đã đổi chỗ Preview lên trên Caster Lên Hình)[cite: 19] -->
+                    <!-- 8 Nút bấm chuẩn lưới 2x4 -->
                     <div class="grid grid-cols-2 gap-2.5 mb-4">
                         <button id="btn-c2-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
@@ -291,24 +294,12 @@
         </div>
     </div>
 
-    <!-- SCRIPT TÍCH HỢP FIREBASE[cite: 19] -->
+    <!-- SCRIPT TÍCH HỢP SUPABASE -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        const SUPABASE_URL = 'https://omwirirvygtlmvcjrlik.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_zfhPOosE4n_efrG_egojpg_WY7ryv7R';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJZo-qh1VsbaixImBQOWTc5g1KLY4ugvc",
-            authDomain: "vedc-tally-signal-1470d.firebaseapp.com",
-            databaseURL: "https://vedc-tally-signal-1470d-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "vedc-tally-signal-1470d",
-            storageBucket: "vedc-tally-signal-1470d.firebasestorage.app",
-            messagingSenderId: "208327260119",
-            appId: "1:208327260119:web:dc063b12622626472efd92",
-            measurementId: "G-KXC2301E50"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const urlParams = new URLSearchParams(window.location.search);
         let role = urlParams.get('role');
@@ -411,8 +402,8 @@
             }
         }
 
-        function getDbRef(targetCaster) {
-            return ref(db, `jobs/${jobId}/signals/${targetCaster}`);
+        function getChannelName(targetCaster) {
+            return `job_${jobId}_${targetCaster}`;
         }
 
         function initDirectorPanel() {
@@ -444,17 +435,32 @@
             listenMonitor('caster_2', 'monitor-c2');
         }
 
+        let directorStateC1 = { message: '' };
+        let directorStateC2 = { message: '' };
+
         function sendSignal(targetId, titleEng, titleVie, bgColor, textColor, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
-            set(getDbRef(targetId), {
-                titleEng: titleEng,
-                titleVie: titleVie,
-                bgColor: bgColor,
-                textColor: textColor,
-                message: '',
-                countdownSec: countdownSec,
+            const payload = {
+                titleEng,
+                titleVie,
+                bgColor,
+                textColor,
+                message: targetId === 'caster_1' ? directorStateC1.message : directorStateC2.message,
+                countdownSec,
                 triggerTime: Date.now()
-            }).catch(err => alert("Lỗi: " + err.message));
+            };
+
+            const channel = supabaseClient.channel(getChannelName(targetId));
+            channel.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.send({
+                        type: 'broadcast',
+                        event: 'signal',
+                        payload: payload
+                    });
+                    supabaseClient.removeChannel(channel);
+                }
+            });
         }
 
         function sendQuickMsg(targetId, inputId) {
@@ -462,32 +468,63 @@
             const msg = input.value.trim();
             if(!msg) return;
 
-            update(getDbRef(targetId), { message: msg })
-                .catch(err => alert("Lỗi gửi tin nhắn: " + err.message));
+            if (targetId === 'caster_1') directorStateC1.message = msg;
+            else directorStateC2.message = msg;
+            
+            const channel = supabaseClient.channel(getChannelName(targetId));
+            channel.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.send({
+                        type: 'broadcast',
+                        event: 'signal',
+                        payload: {
+                            message: msg,
+                            triggerTime: Date.now()
+                        }
+                    });
+                    supabaseClient.removeChannel(channel);
+                }
+            });
             input.value = '';
         }
 
         function clearQuickMsg(targetId) {
-            update(getDbRef(targetId), { message: '' })
-                .catch(err => alert("Lỗi xóa tin nhắn: " + err.message));
+            if (targetId === 'caster_1') directorStateC1.message = '';
+            else directorStateC2.message = '';
+
+            const channel = supabaseClient.channel(getChannelName(targetId));
+            channel.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.send({
+                        type: 'broadcast',
+                        event: 'signal',
+                        payload: {
+                            message: '',
+                            triggerTime: Date.now()
+                        }
+                    });
+                    supabaseClient.removeChannel(channel);
+                }
+            });
         }
 
         function listenMonitor(targetId, elementId) {
             const monitorEl = document.getElementById(elementId);
-            onValue(getDbRef(targetId), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
+            const channel = supabaseClient.channel(getChannelName(targetId));
+            channel.on('broadcast', { event: 'signal' }, (payload) => {
+                const data = payload.payload;
+                if (data && data.titleEng) {
                     monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
                     monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
                     monitorEl.style.color = data.textColor || '#ffffff';
                 }
-            });
+            }).subscribe();
         }
 
         let lastTriggerTime = 0;
         let activeTimer = null;
 
-        function initCasterTablet(targetId, elementId) {
+        function initCasterTablet(targetId) {
             const mainBody = document.getElementById('main-body');
             const statusBadge = document.getElementById('status-badge');
             const statusSubtext = document.getElementById('status-subtext');
@@ -495,28 +532,25 @@
             const countdownBanner = document.getElementById('caster-countdown-banner');
             const timerNum = document.getElementById('caster-timer-num');
 
-            onValue(getDbRef(targetId), (snapshot) => {
-                const data = snapshot.val();
-                
-                if (!data) {
-                    mainBody.style.backgroundColor = '#020617';
-                    mainBody.style.color = '#ffffff';
-                    statusBadge.innerText = 'PREVIEW';
-                    statusSubtext.innerText = 'ĐÃ KẾT NỐI - CHỜ TÍN HIỆU';
-                    return;
+            const channel = supabaseClient.channel(getChannelName(targetId));
+            channel.on('broadcast', { event: 'signal' }, (payload) => {
+                const data = payload.payload;
+                if (!data) return;
+
+                if (data.bgColor) {
+                    mainBody.style.backgroundColor = data.bgColor;
+                    mainBody.style.color = data.textColor || '#ffffff';
+                    statusBadge.innerText = data.titleEng || 'STANDBY';
+                    statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
                 }
 
-                mainBody.style.backgroundColor = data.bgColor || '#020617';
-                mainBody.style.color = data.textColor || '#ffffff';
-
-                statusBadge.innerText = data.titleEng || 'STANDBY';
-                statusSubtext.innerText = data.titleVie || 'SẴN SÀNG';
-
-                if (data.message && data.message.trim() !== '') {
-                    customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
-                    customMsg.classList.remove('hidden');
-                } else {
-                    customMsg.classList.add('hidden');
+                if (data.message !== undefined) {
+                    if (data.message && data.message.trim() !== '') {
+                        customMsg.innerText = `⚠️ LỜI NHẮC: ${data.message}`;
+                        customMsg.classList.remove('hidden');
+                    } else {
+                        customMsg.classList.add('hidden');
+                    }
                 }
 
                 if (data.triggerTime && data.triggerTime !== lastTriggerTime) {
@@ -542,7 +576,7 @@
                         countdownBanner.classList.add('hidden');
                     }
                 }
-            });
+            }).subscribe();
         }
 
         let wakeLock = null;
