@@ -294,7 +294,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT TÍCH HỢP SUPABASE -->
+    <!-- SCRIPT TÍCH HỢP SUPABASE (Dùng chung kênh Global Broadcast không cần cấu hình database) -->
     <script type="module">
         const SUPABASE_URL = 'https://omwirirvygtlmvcjrlik.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zfhPOosE4n_efrG_egojpg_WY7ryv7R';
@@ -402,9 +402,14 @@
             }
         }
 
-        function getChannelName(targetCaster) {
-            return `job_${jobId}_${targetCaster}`;
-        }
+        // Kênh Global duy nhất qua Supabase Realtime
+        const globalChannel = supabaseClient.channel('vedc_global_room', {
+            config: { broadcast: { self: true } }
+        });
+
+        globalChannel.subscribe((status) => {
+            console.log("Supabase Realtime Status:", status);
+        });
 
         function initDirectorPanel() {
             // Bàn 1
@@ -431,8 +436,18 @@
             document.getElementById('btn-c2-sendmsg').onclick = () => sendQuickMsg('caster_2', 'input-c2-msg');
             document.getElementById('btn-c2-clearmsg').onclick = () => clearQuickMsg('caster_2');
 
-            listenMonitor('caster_1', 'monitor-c1');
-            listenMonitor('caster_2', 'monitor-c2');
+            // Lắng nghe hiển thị trên bảng điều khiển của Director
+            globalChannel.on('broadcast', { event: 'signal_update' }, (payload) => {
+                const data = payload.payload;
+                if (data && data.jobId === jobId) {
+                    const monitorEl = document.getElementById(data.targetId === 'caster_1' ? 'monitor-c1' : 'monitor-c2');
+                    if (monitorEl && data.titleEng) {
+                        monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
+                        monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
+                        monitorEl.style.color = data.textColor || '#ffffff';
+                    }
+                }
+            });
         }
 
         let directorStateC1 = { message: '' };
@@ -440,25 +455,21 @@
 
         function sendSignal(targetId, titleEng, titleVie, bgColor, textColor, secInputId) {
             const countdownSec = parseInt(document.getElementById(secInputId).value) || 0;
-            const payload = {
-                titleEng,
-                titleVie,
-                bgColor,
-                textColor,
-                message: targetId === 'caster_1' ? directorStateC1.message : directorStateC2.message,
-                countdownSec,
-                triggerTime: Date.now()
-            };
+            const msg = targetId === 'caster_1' ? directorStateC1.message : directorStateC2.message;
 
-            const channel = supabaseClient.channel(getChannelName(targetId));
-            channel.subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.send({
-                        type: 'broadcast',
-                        event: 'signal',
-                        payload: payload
-                    });
-                    supabaseClient.removeChannel(channel);
+            globalChannel.send({
+                type: 'broadcast',
+                event: 'signal_update',
+                payload: {
+                    jobId: jobId,
+                    targetId: targetId,
+                    titleEng: titleEng,
+                    titleVie: titleVie,
+                    bgColor: bgColor,
+                    textColor: textColor,
+                    message: msg,
+                    countdownSec: countdownSec,
+                    triggerTime: Date.now()
                 }
             });
         }
@@ -470,19 +481,15 @@
 
             if (targetId === 'caster_1') directorStateC1.message = msg;
             else directorStateC2.message = msg;
-            
-            const channel = supabaseClient.channel(getChannelName(targetId));
-            channel.subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.send({
-                        type: 'broadcast',
-                        event: 'signal',
-                        payload: {
-                            message: msg,
-                            triggerTime: Date.now()
-                        }
-                    });
-                    supabaseClient.removeChannel(channel);
+
+            globalChannel.send({
+                type: 'broadcast',
+                event: 'signal_update',
+                payload: {
+                    jobId: jobId,
+                    targetId: targetId,
+                    message: msg,
+                    triggerTime: Date.now()
                 }
             });
             input.value = '';
@@ -492,33 +499,16 @@
             if (targetId === 'caster_1') directorStateC1.message = '';
             else directorStateC2.message = '';
 
-            const channel = supabaseClient.channel(getChannelName(targetId));
-            channel.subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.send({
-                        type: 'broadcast',
-                        event: 'signal',
-                        payload: {
-                            message: '',
-                            triggerTime: Date.now()
-                        }
-                    });
-                    supabaseClient.removeChannel(channel);
+            globalChannel.send({
+                type: 'broadcast',
+                event: 'signal_update',
+                payload: {
+                    jobId: jobId,
+                    targetId: targetId,
+                    message: '',
+                    triggerTime: Date.now()
                 }
             });
-        }
-
-        function listenMonitor(targetId, elementId) {
-            const monitorEl = document.getElementById(elementId);
-            const channel = supabaseClient.channel(getChannelName(targetId));
-            channel.on('broadcast', { event: 'signal' }, (payload) => {
-                const data = payload.payload;
-                if (data && data.titleEng) {
-                    monitorEl.innerText = data.titleEng + ' (' + data.titleVie + ')';
-                    monitorEl.style.backgroundColor = data.bgColor || '#1e293b';
-                    monitorEl.style.color = data.textColor || '#ffffff';
-                }
-            }).subscribe();
         }
 
         let lastTriggerTime = 0;
@@ -532,10 +522,9 @@
             const countdownBanner = document.getElementById('caster-countdown-banner');
             const timerNum = document.getElementById('caster-timer-num');
 
-            const channel = supabaseClient.channel(getChannelName(targetId));
-            channel.on('broadcast', { event: 'signal' }, (payload) => {
+            globalChannel.on('broadcast', { event: 'signal_update' }, (payload) => {
                 const data = payload.payload;
-                if (!data) return;
+                if (!data || data.jobId !== jobId || data.targetId !== targetId) return;
 
                 if (data.bgColor) {
                     mainBody.style.backgroundColor = data.bgColor;
@@ -576,7 +565,7 @@
                         countdownBanner.classList.add('hidden');
                     }
                 }
-            }).subscribe();
+            });
         }
 
         let wakeLock = null;
