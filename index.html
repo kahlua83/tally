@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VEDC Caster Signal System</title>
     
-    <!-- Hệ thống Favicon chuẩn chính chủ VEDC -->
+    <!-- Hệ thống Favicon chuẩn chính chủ VEDC[cite: 19] -->
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -40,7 +40,7 @@
 </head>
 <body id="main-body" class="bg-slate-950 text-white h-screen w-screen flex flex-col justify-between overflow-x-hidden font-sans select-none" style="background-color: #020617; transition: background-color 0.2s ease;">
 
-    <!-- ==================== BƯỚC CÀI ĐẶT BAN ĐẦU ==================== -->
+    <!-- ==================== BƯỚC CÀI ĐẶT BAN ĐẦU[cite: 19] ==================== -->
     <div id="setup-view" class="hidden flex-1 flex flex-col justify-center items-center p-4 sm:p-6 text-center bg-slate-950 min-h-screen">
         <div class="bg-slate-900 border-2 border-slate-800 p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-2xl">
             <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 mb-2 flex items-center justify-center gap-2">
@@ -48,7 +48,7 @@
             </h1>
             <p id="setup-step-title" class="text-slate-400 text-xs sm:text-sm mb-6">Bước 1: Chọn vai trò truy cập hệ thống</p>
 
-            <!-- BƯỚC 1: CHỌN VAI TRÒ -->
+            <!-- BƯỚC 1: CHỌN VAI TRÒ[cite: 19] -->
             <div id="step-role-container" class="space-y-3 mb-4">
                 <button onclick="selectRole('director')" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 font-black text-base rounded-2xl transition flex items-center justify-center gap-2 shadow-lg">
                     <span>🎛️ ĐẠO DIỄN (DIRECTOR)</span>
@@ -58,7 +58,7 @@
                 </button>
             </div>
 
-            <!-- BƯỚC 2: CHỌN JOB -->
+            <!-- BƯỚC 2: CHỌN JOB[cite: 19] -->
             <div id="step-job-container" class="space-y-3 mb-6 hidden">
                 <button onclick="selectPresetJob('job1')" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition flex items-center justify-between text-sm sm:text-base">
                     <span>📡 JOB 1 (Sự kiện 1)</span>
@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <!-- BƯỚC 3: CHỌN BÀN CASTER -->
+            <!-- BƯỚC 3: CHỌN BÀN CASTER[cite: 19] -->
             <div id="step-caster-desk-container" class="space-y-3 mb-6 hidden">
                 <button onclick="selectCasterDesk('caster_1')" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 font-black text-base sm:text-lg rounded-2xl transition flex items-center justify-center gap-2">
                     🎙️ BÀN 1 (MAIN CASTER)
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <!-- ==================== MÀN HÌNH HIỂN THỊ CASTER (SCREEN) ==================== -->
+    <!-- ==================== MÀN HÌNH HIỂN THỊ CASTER (SCREEN)[cite: 19] ==================== -->
     <div id="caster-view" class="hidden flex-1 flex flex-col justify-center items-center p-3 sm:p-6 text-center relative h-full w-full overflow-hidden">
         
         <button id="btn-caster-reset" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/80 border border-white/20 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-slate-200 transition z-10 shadow">
@@ -134,7 +134,7 @@
         </div>
     </div>
 
-    <!-- ==================== BẢNG ĐIỀU KHIỂN ĐẠO DIỄN (DIRECTOR) ==================== -->
+    <!-- ==================== BẢNG ĐIỀU KHIỂN ĐẠO DIỄN (DIRECTOR)[cite: 19] ==================== -->
     <div id="director-view" class="hidden flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl mx-auto w-full">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-slate-800">
             <h1 class="text-2xl sm:text-3xl font-black text-indigo-400 flex items-center gap-2">
@@ -170,24 +170,24 @@
                         </div>
                     </div>
 
-                    <!-- 8 Nút bấm chuẩn lưới 2x4 đồng đều -->
+                    <!-- 8 Nút bấm chuẩn lưới 2x4 (Đã đổi chỗ Preview lên trên Caster Lên Hình)[cite: 19] -->
                     <div class="grid grid-cols-2 gap-2.5 mb-4">
                         <button id="btn-c1-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG SÓNG ĐANG PHÁT</span>
                         </button>
-                        <button id="btn-c1-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                            <span>🎥 CASTER LÊN HÌNH</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
+                        <button id="btn-c1-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
                         </button>
 
                         <button id="btn-c1-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎙️ CASTER XUỐNG HÌNH</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
                         </button>
-                        <button id="btn-c1-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                            <span>🟢 PREVIEW</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        <button id="btn-c1-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎥 CASTER LÊN HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
                         <button id="btn-c1-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
@@ -239,24 +239,24 @@
                         </div>
                     </div>
 
-                    <!-- 8 Nút bấm chuẩn lưới 2x4 đồng đều -->
+                    <!-- 8 Nút bấm chuẩn lưới 2x4 (Đã đổi chỗ Preview lên trên Caster Lên Hình)[cite: 19] -->
                     <div class="grid grid-cols-2 gap-2.5 mb-4">
                         <button id="btn-c2-onair" class="p-3 sm:p-3.5 rounded-2xl bg-red-700 hover:bg-red-600 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>📡 STREAM ON AIR</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">LUỒNG SÓNG ĐANG PHÁT</span>
                         </button>
-                        <button id="btn-c2-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                            <span>🎥 CASTER LÊN HÌNH</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
+                        <button id="btn-c2-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🟢 PREVIEW</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
                         </button>
 
                         <button id="btn-c2-cam-off" class="p-3 sm:p-3.5 rounded-2xl bg-black hover:bg-slate-900 border-2 border-red-500 text-white font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
                             <span>🎙️ CASTER XUỐNG HÌNH</span>
                             <span class="text-[10px] sm:text-xs font-normal opacity-80">OFF CAM (VẪN BÌNH LUẬN)</span>
                         </button>
-                        <button id="btn-c2-standby" class="p-3 sm:p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
-                            <span>🟢 PREVIEW</span>
-                            <span class="text-[10px] sm:text-xs font-normal opacity-80">STANDBY / CHUẨN BỊ</span>
+                        <button id="btn-c2-cam-on" class="p-3 sm:p-3.5 rounded-2xl bg-red-600 hover:bg-red-500 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
+                            <span>🎥 CASTER LÊN HÌNH</span>
+                            <span class="text-[10px] sm:text-xs font-normal opacity-80">ON CAMERA</span>
                         </button>
 
                         <button id="btn-c2-caugio" class="p-3 sm:p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg transition active:scale-95 text-left flex flex-col">
@@ -291,7 +291,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT TÍCH HỢP FIREBASE -->
+    <!-- SCRIPT TÍCH HỢP FIREBASE[cite: 19] -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
